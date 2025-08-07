@@ -37,3 +37,4 @@ langchain_community
 langchain_text_splitters
 ftfy
 scikit-multilearn
+spacy
