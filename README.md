@@ -47,7 +47,6 @@ The project's architecture is predicated upon a system of intelligent **agents**
 
 **Before running the system**, you must configure the appropriate API keys for your chosen LLM provider. Choose one of the following methods:
 
-#### Method 1: Environment Variables (Recommended)
 Export the API key directly in your terminal session:
 
 ```bash
@@ -56,18 +55,7 @@ export GEMINI_API_KEY="your_gemini_api_key_here"
 
 # For OpenAI
 export OPENAI_API_KEY="your_openai_api_key_here"
-
-#### Verify API Key Setup
-Test your API key configuration:
-
-```bash
-# Check if API key is set
-echo $GEMINI_API_KEY
-
-# Should output your API key (not empty)
 ```
-
-### Execution Syntax
 
 ```bash
 python run.py -i <path_to_data_folder> -c <path_to_config_file> -o <path_to_output_folder>
