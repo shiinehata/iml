@@ -25,28 +25,52 @@ The project's architecture is predicated upon a system of intelligent **agents**
 
   * **Self-Improvement Loop**: A self-improvement cycle is incorporated, comprising the `FeedbackAgent`, `CandidateGeneratorAgent`, and `CandidateSelectorAgent`, to enable the automatic debugging and optimization of the generated solution.
 
-* **Multi-LLM Provider Support**: A notable feature is the capacity for seamless integration with a plurality of Large Language Model (LLM) providers, including but not limited to OpenAI, Azure, Anthropic, and Bedrock.
+* **Multi-LLM Provider Support**: A notable feature is the capacity for seamless integration with a plurality of Large Language Model (LLM) providers, including but not limited to:
+  * **OpenAI** (GPT-4, GPT-3.5-turbo, etc.)
+  * **Azure OpenAI** (Azure-hosted GPT models)
+  * **Anthropic** (Claude models)
+  * **AWS Bedrock** (Various foundation models)
+  * **Google Gemini** (Gemini-1.5-pro, Gemini-1.5-flash, etc.)
 
 * **Structured Logging and Artifacts**: Each execution instance is archived within a dedicated directory located in the `runs/` folder, a methodology that facilitates systematic tracking, comparison, and reuse of procedural outcomes.
 
 ---
 ## How to Run
 
-The initiation of the iML AutoML pipeline is accomplished via the execution of the `run.py` script, which accepts several command-line arguments.
-
 ### System Prerequisites
 
-* An installation of Python, version 3.11.
+* An installation of Python, version 3.11 or higher.
+* All requisite dependencies installed via: `pip install -r requirements.txt`
+* **API Key Configuration** (see below)
 
-* All requisite dependencies, as enumerated within a `requirements.txt` file, should such a file be provided.
+### API Key Configuration
 
-* Properly configured environment variables corresponding to the selected Large Language Model (LLM) provider (e.g., `OPENAI_API_KEY`).
+**Before running the system**, you must configure the appropriate API keys for your chosen LLM provider. Choose one of the following methods:
+
+#### Method 1: Environment Variables (Recommended)
+Export the API key directly in your terminal session:
+
+```bash
+# For Google Gemini (default provider)
+export GEMINI_API_KEY="your_gemini_api_key_here"
+
+# For OpenAI
+export OPENAI_API_KEY="your_openai_api_key_here"
+
+#### Verify API Key Setup
+Test your API key configuration:
+
+```bash
+# Check if API key is set
+echo $GEMINI_API_KEY
+
+# Should output your API key (not empty)
+```
 
 ### Execution Syntax
 
-```
+```bash
 python run.py -i <path_to_data_folder> -c <path_to_config_file> -o <path_to_output_folder>
-
 ```
 
 ### Command-Line Arguments
@@ -57,17 +81,35 @@ python run.py -i <path_to_data_folder> -c <path_to_config_file> -o <path_to_outp
 
 * `-o` or `--output` (optional): Specifies the path to the directory wherein the results are to be saved. In the absence of this argument, a new directory will be programmatically generated within the `runs/` folder, named according to the format `run_<datetime>_<uuid>`.
 
-### Illustrative Example
+### Complete Example
 
-```
+```bash
+# Step 1: Set up API key
+export GEMINI_API_KEY="your_actual_api_key_here"
+
+# Step 2: Run the AutoML pipeline
 python run.py -i ./datasets/steel_plate_defect -c configs/default.yaml
 
+# Alternative: Use different LLM provider
+# For OpenAI:
+export OPENAI_API_KEY="your_openai_key_here"
+python run.py -i ./datasets/steel_plate_defect -c configs/openai_config.yaml
 ```
 
-The execution of the aforementioned command will initiate the AutoML pipeline for the dataset situated at `./datasets/steel_plate_defect`. All resulting artifacts will be stored in a newly created directory within the `runs/` folder.
+The execution of the aforementioned commands will initiate the AutoML pipeline for the dataset situated at `./datasets/steel_plate_defect`. All resulting artifacts will be stored in a newly created directory within the `runs/` folder.
+
+### Configuration Files
+
+The system supports different LLM providers through configuration files:
+
+* `configs/default.yaml` - Uses Google Gemini (default)
+* `configs/openai_config.yaml` - Uses OpenAI GPT models  
+* `configs/anthropic_config.yaml` - Uses Anthropic Claude models
+* `configs/azure_config.yaml` - Uses Azure OpenAI models
+* `configs/bedrock_config.yaml` - Uses AWS Bedrock models
 
 ---
-## workflow Project Workflow
+## Project Workflow
 
 The operational methodology of `iML` is characterized by a structured, multi-stage process, which is orchestrated by the `Manager` module located at `src/iML/core/manager.py`. A detailed breakdown of this workflow is provided herein.
 
@@ -104,3 +146,34 @@ The operational methodology of `iML` is characterized by a structured, multi-sta
 5. **Completion**: All artifacts produced throughout the process—including code generated at each discrete step (`preprocessing_code_response.py`, `modeling_code_response.py`), temporary execution files (`temp_exec_*.py`), and the final outputs (`submission.csv`, `final_executable_code.py`)—are systematically archived within the run's dedicated output directory.
 
 The resultant directory structure, formatted as `runs/run_<timestamp>_<uuid>/`, serves as a direct artifact of this procedural workflow, wherein each subdirectory and file meticulously logs the state of the system at every discrete step.
+
+---
+## Troubleshooting
+
+### Common Issues
+
+1. **API Key Not Found Error**:
+   ```
+   ValueError: Gemini API key not found in environment
+   ```
+   **Solution**: Ensure you have exported the correct API key using one of the methods above.
+
+2. **Invalid API Key Error**:
+   ```
+   Error fetching Gemini models: Invalid API key
+   ```
+   **Solution**: Verify your API key is correct and has proper permissions.
+
+3. **Missing Dependencies**:
+   ```
+   ImportError: No module named 'langchain_google_genai'
+   ```
+   **Solution**: Install all dependencies: `pip install -r requirements.txt`
+
+### Getting API Keys
+
+* **Google Gemini**: Visit [Google AI Studio](https://aistudio.google.com/app/apikey)
+* **OpenAI**: Visit [OpenAI Platform](https://platform.openai.com/api-keys)
+* **Anthropic**: Visit [Anthropic Console](https://console.anthropic.com/)
+* **Azure OpenAI**: Contact your Azure administrator
+* **AWS Bedrock**: Configure through AWS IAM
