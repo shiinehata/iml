@@ -24,11 +24,11 @@ class AssistantChatGemini(ChatGoogleGenerativeAI, BaseAssistantChat):
 
 def get_gemini_models() -> List[str]:
     try:
-        if "GOOGLE_API_KEY" not in os.environ:
-            logger.warning("GOOGLE_API_KEY not found in environment")
+        if "GEMINI_API_KEY" not in os.environ:
+            logger.warning("GEMINI_API_KEY not found in environment")
             return []
             
-        genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
+        genai.configure(api_key=os.environ["GEMINI_API_KEY"])
         available_models = genai.list_models()
         
         models = []
@@ -47,13 +47,13 @@ def create_gemini_chat(config, session_name: str) -> AssistantChatGemini:
     """Create a Gemini chat model instance."""
     model = config.model
 
-    if "GOOGLE_API_KEY" not in os.environ:
-        raise ValueError("Google API key not found in environment")
+    if "GEMINI_API_KEY" not in os.environ:
+        raise ValueError("Gemini API key not found in environment")
 
     logger.info(f"Using Gemini model: {model} for session: {session_name}")
     kwargs = {
         "model": model,
-        "google_api_key": os.environ["GOOGLE_API_KEY"],
+        "google_api_key": os.environ["GEMINI_API_KEY"],
         "session_name": session_name,
     }
 

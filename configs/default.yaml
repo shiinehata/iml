@@ -17,13 +17,13 @@ condense_tutorials: True
 use_tutorial_summary: True
 
 # Debug
-verbosity: 2
+verbosity: 4
 
 # Default LLM Configuration
 # For each agent (coder, etc.) you can use a different one
 llm: &default_llm
-  provider: openai
-  model: o4-mini
+  provider: gemini
+  model: gemini-2.5-pro
   max_tokens: 16384
   proxy_url: null
   temperature: 1.0
