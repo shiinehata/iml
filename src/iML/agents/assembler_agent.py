@@ -57,7 +57,14 @@ class AssemblerAgent(BaseAgent):
                 output_path=submission_path,
                 error_message=error_message
             )
+
             response = self.llm.assistant_chat(prompt)
+            self.manager.save_and_log_states(
+                content=response,
+                save_name=f"assembler_raw_response_attempt_{attempt + 1}.txt",
+                per_iteration=True
+            )
+
             final_code = self.prompt_handler.parse(response)
             
             # 2. Execute final code

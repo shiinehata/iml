@@ -46,7 +46,14 @@ class ModelingCoderAgent(BaseAgent):
             description=description,
             preprocessing_code=preprocessing_code,
         )
+        
         response = self.llm.assistant_chat(prompt)
+        self.manager.save_and_log_states(
+            content=response,
+            save_name="modeling_coder_raw_response.txt",
+            per_iteration=True
+        )
+
         modeling_code = self.prompt_handler.parse(response)
 
         self.manager.log_agent_end("Completed modeling code generation.")

@@ -48,7 +48,14 @@ class PreprocessingCoderAgent(BaseAgent):
                 previous_code=code_to_execute,
                 error_message=error_message
             )
+
             response = self.llm.assistant_chat(prompt)
+            self.manager.save_and_log_states(
+                content=response,
+                save_name=f"preprocessing_coder_raw_response_attempt_{attempt + 1}.txt",
+                per_iteration=True
+            )
+            
             code_to_execute = self.prompt_handler.parse(response)
 
             # 2. Execute code
