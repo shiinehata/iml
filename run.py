@@ -37,7 +37,7 @@ def main():
     run_automl_pipeline(
         input_data_folder=args.input,
         output_folder=args.output,
-        config=args.config,
+        config_path=args.config,
     )
 
 if __name__ == "__main__":

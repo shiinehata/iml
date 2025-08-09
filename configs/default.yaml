@@ -23,10 +23,10 @@ verbosity: 4
 # For each agent (coder, etc.) you can use a different one
 llm: &default_llm
   provider: gemini
-  model: gemini-2.5-pro
+  model: gemini-2.5-flash
   max_tokens: 16384
   proxy_url: null
-  temperature: 1.0
+  temperature: 0.0
   top_p: 0.9
   verbose: True
   multi_turn: False

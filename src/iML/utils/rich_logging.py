@@ -112,17 +112,19 @@ def _configure_logging(console_level: int, output_dir: Path = None) -> None:
 
 
 def configure_logging(verbosity: int, output_dir: Path = None) -> None:
-    match verbosity:
-        case 0:
-            level = logging.ERROR  # Only errors
-        case 1:
-            level = BRIEF_LEVEL  # Brief summaries
-        case 2:
-            level = logging.INFO  # Standard info
-        case 3:
-            level = DETAIL_LEVEL  # Model details
-        case _:  # 4+
-            level = logging.DEBUG  # Full debug info
+    """Configure logging based on verbosity level."""
+    
+    if verbosity == 0:
+        level = logging.ERROR  # Chỉ lỗi
+    elif verbosity == 1:
+        level = BRIEF_LEVEL  # Tóm tắt ngắn gọn
+    elif verbosity == 2:
+        level = logging.INFO  # Thông tin tiêu chuẩn
+    elif verbosity == 3:
+        level = DETAIL_LEVEL  # Chi tiết về model
+    else:  # verbosity >= 4
+        level = logging.DEBUG  # Toàn bộ thông tin debug
+    
     _configure_logging(console_level=level, output_dir=output_dir)
 
 

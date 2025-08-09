@@ -170,6 +170,7 @@ class Manager:
         self.assembled_code = assembler_result.get("code")
         logger.info(f"Initial script generated and executed successfully.")
         
+        """
         # --- SELF-IMPROVEMENT LOOP ---
         logger.info("Starting self-improvement loop...")
 
@@ -209,7 +210,7 @@ class Manager:
                     else:
                          logger.error(f"Execution of improved script failed. Error: {final_execution_result['stderr']}")
                          logger.warning("The improved script failed. The result from the initial script is still available.")
-
+        """
 
         logger.info("AutoML pipeline completed successfully!")
 
