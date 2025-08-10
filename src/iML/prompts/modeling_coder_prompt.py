@@ -34,16 +34,17 @@ The following preprocessing code, including a function `preprocess_data(file_pat
 1.  **Generate COMPLETE Python code for the modeling part ONLY.** Do NOT repeat the preprocessing code.
 2.  Your code should start with necessary imports for modeling (e.g., `import pandas as pd`, `from sklearn.ensemble import RandomForestClassifier`).
 3.  Define a function `train_and_predict(X_train, y_train, X_test)`.
-4.  The main execution block (`if __name__ == "__main__":`) must:
+4.  Load data in the file paths provided above.
+5.  The main execution block (`if __name__ == "__main__":`) must:
     a. Call the existing `preprocess_data()` function to get the datasets.
     b. Call your `train_and_predict()` function.
     c. Save the predictions to a `submission.csv` file. The format should typically be two columns: an identifier column and the prediction column.
-5.  **Critical Error Handling**: The main execution block MUST be wrapped in a `try...except` block. If ANY exception occurs, the script MUST print the error to stderr and **exit with a non-zero status code** (`sys.exit(1)`).
-6.  Follow the modeling guidelines for algorithm choice.
-7.  Do not use extensive hyperparameter tuning unless specified. Keep the code efficient.
-8.  Limit comments in the code.
-9.  The submission file must have the same structure (number of columns) as the sample submission file provided in the dataset, but may have different ID. You have to use the test data to generate predictions and your right submission file. In some cases, you must browse the test image folder to get the IDs and data.
-10. Your final COMPLETE Python code should have only ONE main function. If there are duplicate main function, remove the duplicates and keep only one main function.
+6.  **Critical Error Handling**: The main execution block MUST be wrapped in a `try...except` block. If ANY exception occurs, the script MUST print the error to stderr and **exit with a non-zero status code** (`sys.exit(1)`).
+7.  Follow the modeling guidelines for algorithm choice.
+8.  Do not use extensive hyperparameter tuning unless specified. Keep the code efficient.
+9.  Limit comments in the code.
+10.  The submission file must have the same structure (number of columns) as the sample submission file provided in the dataset, but may have different ID. You have to use the test data to generate predictions and your right submission file. In some cases, you must browse the test image folder to get the IDs and data.
+11. Your final COMPLETE Python code should have only ONE main function. If there are duplicate main function, remove the duplicates and keep only one main function.
 
 ## CODE STRUCTURE EXAMPLE:
 ```python

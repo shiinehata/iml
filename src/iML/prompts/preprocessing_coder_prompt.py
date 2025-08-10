@@ -34,7 +34,7 @@ IMPORTANT: Preprocess data by batch using generators to reduce memory usage.
 ## REQUIREMENTS:
 1. Generate COMPLETE, EXECUTABLE Python code.
 2. Include all necessary imports (pandas, scikit-learn, numpy, etc.).
-3. Handle file loading from the provided paths.
+3. Handle file loading exactly as the provided paths.
 4. Follow the preprocessing guidelines exactly.
 5. Create a function `preprocess_data()` that takes a dictionary of file paths and returns a tuple of preprocessed data (e.g., X_train, X_test, y_train, y_test).
 6. Include basic error handling and data validation within the function.
