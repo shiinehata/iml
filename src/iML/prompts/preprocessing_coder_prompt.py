@@ -14,6 +14,7 @@ class PreprocessingCoderPrompt(BasePrompt):
         return """
 You are a professional Machine Learning Engineer.
 Generate complete and executable Python preprocessing code for the dataset below.
+IMPORTANT: Preprocess data by batch using generators to reduce memory usage.
 
 ## DATASET INFO:
 - Name: {dataset_name}
