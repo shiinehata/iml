@@ -17,7 +17,7 @@ You are an expert ML engineer. Your task is to generate Python code for modeling
 ## CONTEXT
 - **Dataset Name**: {dataset_name}
 - **Task Description**: {task_desc}
-- **File Paths**: {file_paths}
+- **File Paths**: {file_paths} (LOAD DATA FROM THESE PATHS)
 - **Ground Truth Paths**: {ground_truth_paths}
 - **Output data format**: {output_data_format}
 
