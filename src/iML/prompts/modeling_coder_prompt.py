@@ -34,7 +34,7 @@ The following preprocessing code, including a function `preprocess_data(file_pat
 1.  **Generate COMPLETE Python code for the modeling part ONLY.** Do NOT repeat the preprocessing code.
 2.  Your code should start with necessary imports for modeling (e.g., `import pandas as pd`, `from sklearn.ensemble import RandomForestClassifier`).
 3.  Define a function `train_and_predict(X_train, y_train, X_test)`.
-4.  Load data in the file paths provided above.
+4.  Load data in the file paths provided above, do not self-create or self-overthink any data files.
 5.  The main execution block (`if __name__ == "__main__":`) must:
     a. Call the existing `preprocess_data()` function to get the datasets.
     b. Call your `train_and_predict()` function.
