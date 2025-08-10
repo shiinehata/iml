@@ -16,7 +16,7 @@ You are a senior ML engineer finalizing a project. You have been given a Python 
 Your task is to ensure the script is clean, robust, and correct.
 
 ## REQUIREMENTS:
-1.  **Final Script**: The output must be a single, standalone, executable Python file.
+1.  **Final Script**: The output must be a single, standalone, executable Python file and it should be run on the real data.
 2.  **Validation Score**: If validation data is available, you MUST calculate and print a relevant validation score.
 3.  **Absolute Output Path**: The script MUST save `submission.csv` to the following absolute path: `{output_path}`.
 4.  **Error Handling**: Maintain the `try...except` block for robust execution.
