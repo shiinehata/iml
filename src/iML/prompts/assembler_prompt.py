@@ -21,7 +21,7 @@ Your task is to ensure the script is clean, robust, and correct.
 3.  **Absolute Output Path**: The script MUST save `submission.csv` to the following absolute path: `{output_path}`.
 4.  **Error Handling**: Maintain the `try...except` block for robust execution.
 5.  **Clarity**: Ensure the final script is clean and well-structured.
-6.  **Data Loading**: Keep the data loading code of the preprocessing code.
+6.  **Data Loading**: Keep the data loading code of the preprocessing code. DO NOT CHANGE THE FILE PATHS FROM THE ORIGINAL CODE.
 7.  **Do not add any other code.**
 
 ## ORIGINAL CODE:
