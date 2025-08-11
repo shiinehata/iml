@@ -22,6 +22,7 @@ Your task is to ensure the script is clean, robust, and correct.
 4.  **Error Handling**: Maintain the `try...except` block for robust execution.
 5.  **Clarity**: Ensure the final script is clean and well-structured.
 6.  **Data Loading**: Keep the data loading code of the preprocessing code.
+7.  **Do not add any other code.**
 
 ## ORIGINAL CODE:
 ```python
