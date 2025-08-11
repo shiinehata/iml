@@ -34,7 +34,7 @@ IMPORTANT: Preprocess data by batch using generators to reduce memory usage.
 ## REQUIREMENTS:
 1. Generate COMPLETE, EXECUTABLE Python code.
 2. Include all necessary imports (pandas, scikit-learn, numpy, etc.).
-3. Handle file loading exactly as the provided paths, do not create dummy data files.
+3. Handle file loading exactly as the provided paths, DO NOT CREATE DUMMY DATA FILES.
 4. Follow the preprocessing guidelines exactly.
 5. Create a function `preprocess_data()` that takes a dictionary of file paths and returns a tuple of preprocessed data (e.g., X_train, X_test, y_train, y_test).
 6. Include basic error handling and data validation within the function.
@@ -44,6 +44,7 @@ IMPORTANT: Preprocess data by batch using generators to reduce memory usage.
 10. **Critical Error Handling**: The main execution block MUST be wrapped in a `try...except` block. If ANY exception occurs, the script MUST print the error and then **exit with a non-zero status code** using `sys.exit(1)`.
 11. DO NOT USE NLTK
 12. Sample submission file given is for template reference only. You have to use the test data to generate predictions and your right submission file. In some cases, you must browse the test image folder to get the IDs and data.
+13. The provided file paths are the only valid paths to load the data. Do not create any dummy data files.
 
 ## CODE STRUCTURE:
 ```python
