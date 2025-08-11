@@ -18,6 +18,7 @@ You are an expert ML engineer. Your task is to generate Python code for modeling
 - **Dataset Name**: {dataset_name}
 - **Task Description**: {task_desc}
 - **File Paths**: {file_paths} (LOAD DATA FROM THESE PATHS)
+- **Data File Description**: {data_file_description}
 - **Ground Truth Paths**: {ground_truth_paths}
 - **Output data format**: {output_data_format}
 
@@ -97,6 +98,7 @@ if __name__ == "__main__":
             task_desc=description.get('task', 'N/A'),
             file_paths=description.get('link to the dataset', []),
             file_paths_main=description.get('link to the dataset', []),
+            data_file_description=description.get('data file description', 'N/A'),
             ground_truth_paths=description.get('link to the ground truth', []),
             output_data_format=description.get('output_data', 'N/A'),
             modeling_guideline=json.dumps(modeling_guideline, indent=2),
