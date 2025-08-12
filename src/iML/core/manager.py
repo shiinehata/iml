@@ -400,7 +400,8 @@ class Manager:
                 capture_output=True,
                 text=True,
                 check=False,  # Do not raise exception on non-zero exit code
-                cwd=working_dir
+                cwd=working_dir,
+                timeout=self.config.per_execution_timeout,
             )
 
             stdout = process.stdout
@@ -418,6 +419,11 @@ class Manager:
                 full_error = f"STDOUT:\n{stdout}\n\nSTDERR:\n{stderr}"
                 return {"success": False, "stdout": stdout, "stderr": full_error}
 
+        except subprocess.TimeoutExpired as e:
+            logger.error(f"Code execution timed out after {self.config.per_execution_timeout} seconds.")
+            # Combine stdout and stderr for a complete error context
+            full_error = f"Timeout Error: Execution exceeded {self.config.per_execution_timeout} seconds.\n\nSTDOUT:\n{e.stdout}\n\nSTDERR:\n{e.stderr}"
+            return {"success": False, "stdout": e.stdout, "stderr": full_error}
         except Exception as e:
             logger.error(f"An exception occurred during code execution: {e}")
             return {"success": False, "stdout": "", "stderr": str(e)}

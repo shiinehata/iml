@@ -1,6 +1,7 @@
 # Tutorial Prompt Generator Configuration
 
-per_execution_timeout: 86400
+pipeline_timeout: 7200
+per_execution_timeout: 7200
 
 # Data Perception
 max_file_group_size_to_show: 5

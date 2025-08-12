@@ -2,6 +2,8 @@ import uuid
 from datetime import datetime
 from pathlib import Path
 import logging
+import signal
+import sys
 
 from omegaconf import OmegaConf
 
@@ -9,6 +11,15 @@ logger = logging.getLogger(__name__)
 
 from .core.manager import Manager
 from .utils.rich_logging import configure_logging
+
+class PipelineTimeoutError(Exception):
+    """Custom exception for pipeline timeout."""
+    pass
+
+def timeout_handler(signum, frame):
+    """Signal handler for timeout."""
+    logger.error("Pipeline execution timed out.")
+    raise PipelineTimeoutError("Pipeline execution exceeded the time limit.")
 
 def run_automl_pipeline(input_data_folder: str, output_folder: str = None, config_path: str = "configs/default.yaml"):
     """
@@ -40,16 +51,33 @@ def run_automl_pipeline(input_data_folder: str, output_folder: str = None, confi
     logger.info(f"Loaded configuration from: {config_path}")
     logger.debug(f"Full configuration details: {OmegaConf.to_yaml(config)}")
 
-    # 4. Initialize the Manager with the prepared settings
-    manager = Manager(
-        input_data_folder=input_data_folder,
-        output_folder=str(output_dir),  # Pass as string for consistency
-        config=config,
-    )
+    # Set up the timeout alarm
+    if hasattr(config, 'pipeline_timeout') and config.pipeline_timeout > 0:
+        signal.signal(signal.SIGALRM, timeout_handler)
+        signal.alarm(config.pipeline_timeout)
+        logger.info(f"Pipeline timeout set to {config.pipeline_timeout} seconds.")
 
-    # 5. Start the pipeline run
-    manager.run_pipeline()
+    manager = None
+    try:
+        # 4. Initialize the Manager with the prepared settings
+        manager = Manager(
+            input_data_folder=input_data_folder,
+            output_folder=str(output_dir),  # Pass as string for consistency
+            config=config,
+        )
 
-    manager.report_token_usage()
-    logger.brief(f"output saved in {output_dir}.")
-    manager.cleanup()
+        # 5. Start the pipeline run
+        manager.run_pipeline()
+
+    except PipelineTimeoutError as e:
+        logger.error(f"Pipeline stopped due to timeout: {e}")
+        sys.exit(1) # Exit with a non-zero status code to indicate an error
+    except Exception as e:
+        logger.error(f"An unexpected error occurred during pipeline execution: {e}", exc_info=True)
+    finally:
+        # Disable the alarm
+        signal.alarm(0)
+        if manager:
+            manager.report_token_usage()
+            logger.brief(f"output saved in {output_dir}.")
+            manager.cleanup()
