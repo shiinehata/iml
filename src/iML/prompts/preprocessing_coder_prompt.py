@@ -15,7 +15,7 @@ class PreprocessingCoderPrompt(BasePrompt):
 You are a professional Machine Learning Engineer.
 Generate complete and executable Python preprocessing code for the dataset below.
 IMPORTANT: Preprocess data by batch using generators to reduce memory usage.
-
+IMPORTANT: DO NOT CREATE DUMMY DATA.
 ## DATASET INFO:
 - Name: {dataset_name}
 - Task: {task_desc}
@@ -39,7 +39,7 @@ IMPORTANT: Preprocess data by batch using generators to reduce memory usage.
 6. Include basic error handling and data validation within the function.
 7. Limit comments in the code.
 8. Preprocess both the train and test data consistently.
-9. The main execution block (`if __name__ == "__main__":`) should test the function with the actual file paths.
+9. IMPORTANT: The main execution block (`if __name__ == "__main__":`) should test the function with the actual file paths.
 10. **Critical Error Handling**: The main execution block MUST be wrapped in a `try...except` block. If ANY exception occurs, the script MUST print the error and then **exit with a non-zero status code** using `sys.exit(1)`.
 11. DO NOT USE NLTK
 12. Sample submission file given is for template reference (Columns) only. You have to use the test data or test file to generate predictions and your right submission file. In some cases, you must browse the test image folder to get the IDs and data.
