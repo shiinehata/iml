@@ -4,6 +4,7 @@ from pathlib import Path
 import logging
 import signal
 import sys
+import time
 
 from omegaconf import OmegaConf
 
@@ -58,6 +59,7 @@ def run_automl_pipeline(input_data_folder: str, output_folder: str = None, confi
         logger.info(f"Pipeline timeout set to {config.pipeline_timeout} seconds.")
 
     manager = None
+    start_time = time.time()
     try:
         # 4. Initialize the Manager with the prepared settings
         manager = Manager(
@@ -77,6 +79,11 @@ def run_automl_pipeline(input_data_folder: str, output_folder: str = None, confi
     finally:
         # Disable the alarm
         signal.alarm(0)
+        
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        logger.brief(f"Total pipeline execution time: {elapsed_time:.2f} seconds.")
+
         if manager:
             manager.report_token_usage()
             logger.brief(f"output saved in {output_dir}.")
