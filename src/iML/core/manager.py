@@ -368,19 +368,21 @@ class Manager:
         with open(output_code_file, "w") as file:
             file.write(script)
 
-    def execute_code(self, code_to_execute: str) -> dict:
+    def execute_code(self, code_to_execute: str, phase_name: str, attempt: int) -> dict:
         """
         Executes a string of Python code in a subprocess.
 
         Args:
             code_to_execute: The Python code to run.
+            phase_name: The name of the phase (e.g., "preprocessing", "assembler").
+            attempt: The retry attempt number.
 
         Returns:
             A dictionary with execution status, stdout, and stderr.
         """
         # Create a temporary file to write the code to
         # Use a unique name for each execution to avoid conflicts
-        temp_script_name = f"temp_exec_{uuid.uuid4().hex[:8]}.py"
+        temp_script_name = f"{phase_name}_attempt_{attempt}_{uuid.uuid4().hex[:8]}.py"
         temp_script_path = os.path.join(self.iteration_folder, temp_script_name)
         
         self.write_code_script(code_to_execute, temp_script_path)
@@ -404,8 +406,8 @@ class Manager:
             stdout = process.stdout
             stderr = process.stderr
 
-            self.save_and_log_states(stdout, f"exec_stdout_{temp_script_name}.txt", per_iteration=True)
-            self.save_and_log_states(stderr, f"exec_stderr_{temp_script_name}.txt", per_iteration=True)
+            self.save_and_log_states(stdout, f"exec_stdout_{os.path.basename(temp_script_path)}.txt")
+            self.save_and_log_states(stderr, f"exec_stderr_{os.path.basename(temp_script_path)}.txt")
 
             if process.returncode == 0:
                 logger.info("Code executed successfully.")
@@ -455,8 +457,8 @@ class Manager:
             data_prompt=self.data_prompt,
         )
 
-        self.save_and_log_states(stderr, "stderr", per_iteration=True, add_uuid=False)
-        self.save_and_log_states(stdout, "stdout", per_iteration=True, add_uuid=False)
+        self.save_and_log_states(stderr, "stderr", add_uuid=False)
+        self.save_and_log_states(stdout, "stdout", add_uuid=False)
 
         if planner_decision == "FIX":
             logger.brief(f"[bold red]Code generation failed in iteration[/bold red] {self.time_step}!")
@@ -483,7 +485,7 @@ class Manager:
         assert len(self.error_messages) == self.time_step
         self.error_messages.append(error_message)
 
-    def save_and_log_states(self, content, save_name, per_iteration=False, add_uuid=False):
+    def save_and_log_states(self, content, save_name, add_uuid=False):
         if add_uuid:
             # Split filename and extension
             name, ext = os.path.splitext(save_name)
@@ -491,10 +493,7 @@ class Manager:
             uuid_suffix = str(uuid.uuid4()).replace("-", "")[:4]
             save_name = f"{name}_{uuid_suffix}{ext}"
 
-        if per_iteration:
-            states_dir = os.path.join(self.iteration_folder, "states")
-        else:
-            states_dir = os.path.join(self.output_folder, "states")
+        states_dir = os.path.join(self.output_folder, "states")
         os.makedirs(states_dir, exist_ok=True)
         output_file = os.path.join(states_dir, save_name)
 

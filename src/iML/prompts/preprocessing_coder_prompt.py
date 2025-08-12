@@ -23,7 +23,6 @@ IMPORTANT: Preprocess data by batch using generators to reduce memory usage.
 - Output: {output_desc}
 - Data files: {data_file_desc}
 - File paths: {file_paths} (LOAD DATA FROM THESE PATHS)
-- Ground truth paths: {ground_truth_paths}
 
 ## PREPROCESSING GUIDELINES:
 {preprocessing_guideline}
@@ -43,7 +42,7 @@ IMPORTANT: Preprocess data by batch using generators to reduce memory usage.
 9. The main execution block (`if __name__ == "__main__":`) should test the function with the actual file paths.
 10. **Critical Error Handling**: The main execution block MUST be wrapped in a `try...except` block. If ANY exception occurs, the script MUST print the error and then **exit with a non-zero status code** using `sys.exit(1)`.
 11. DO NOT USE NLTK
-12. Sample submission file given is for template reference only. You have to use the test data to generate predictions and your right submission file. In some cases, you must browse the test image folder to get the IDs and data.
+12. Sample submission file given is for template reference (Columns) only. You have to use the test data or test file to generate predictions and your right submission file. In some cases, you must browse the test image folder to get the IDs and data.
 13. The provided file paths are the only valid paths to load the data. Do not create any dummy data files.
 
 ## CODE STRUCTURE:
@@ -94,7 +93,6 @@ if __name__ == "__main__":
             data_file_desc=json.dumps(description.get('data file description', {})),
             file_paths=description.get('link to the dataset', []),
             file_paths_main=description.get('link to the dataset', []),
-            ground_truth_paths=description.get('link to the ground truth', []),
             preprocessing_guideline=json.dumps(preprocessing_guideline, indent=2),
             target_info=json.dumps(target_info, indent=2)
         )
@@ -123,7 +121,7 @@ Generate the corrected Python code:
 """
             prompt += retry_context
         
-        self.manager.save_and_log_states(prompt, "preprocessing_coder_prompt.txt", per_iteration=True)
+        self.manager.save_and_log_states(prompt, "preprocessing_coder_prompt.txt")
         return prompt
 
     def parse(self, response: str) -> str:
@@ -135,5 +133,5 @@ Generate the corrected Python code:
         else:
             code = response
         
-        self.manager.save_and_log_states(code, "preprocessing_code_response.py", per_iteration=True)
+        self.manager.save_and_log_states(code, "preprocessing_code_response.py")
         return code

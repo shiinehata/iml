@@ -19,7 +19,6 @@ You are an expert ML engineer. Your task is to generate Python code for modeling
 - **Task Description**: {task_desc}
 - **File Paths**: {file_paths} (LOAD DATA FROM THESE PATHS)
 - **Data File Description**: {data_file_description}
-- **Ground Truth Paths**: {ground_truth_paths}
 - **Output data format**: {output_data_format}
 
 ## MODELING GUIDELINES:
@@ -44,8 +43,10 @@ The following preprocessing code, including a function `preprocess_data(file_pat
 7.  Follow the modeling guidelines for algorithm choice.
 8.  Do not use extensive hyperparameter tuning unless specified. Keep the code efficient.
 9.  Limit comments in the code.
-10.  The submission file must have the same structure (number of columns) as the sample submission file provided in the dataset, but may have different ID. You have to use the test data to generate predictions and your right submission file. In some cases, you must browse the test image folder to get the IDs and data.
+10. The submission file must have the same structure (number of columns) as the sample submission file provided in the dataset, but may have different ID. You have to use the test data to generate predictions and your right submission file. In some cases, you must browse the test image folder to get the IDs and data.
 11. Your final COMPLETE Python code should have only ONE main function. If there are duplicate main function, remove the duplicates and keep only one main function.
+12. Sample submission file given is for template reference (Columns) only. You have to use the test data or test file to generate predictions and your right submission file. In some cases, you must browse the test image folder to get the IDs and data.
+
 
 ## CODE STRUCTURE EXAMPLE:
 ```python
@@ -99,7 +100,6 @@ if __name__ == "__main__":
             file_paths=description.get('link to the dataset', []),
             file_paths_main=description.get('link to the dataset', []),
             data_file_description=description.get('data file description', 'N/A'),
-            ground_truth_paths=description.get('link to the ground truth', []),
             output_data_format=description.get('output_data', 'N/A'),
             modeling_guideline=json.dumps(modeling_guideline, indent=2),
             preprocessing_code=preprocessing_code
@@ -131,7 +131,7 @@ Generate the corrected Python code:
 """
             prompt += retry_context
         
-        self.manager.save_and_log_states(prompt, "modeling_coder_prompt.txt", per_iteration=True)
+        self.manager.save_and_log_states(prompt, "modeling_coder_prompt.txt")
         return prompt
 
     def parse(self, response: str) -> str:
@@ -143,5 +143,5 @@ Generate the corrected Python code:
         else:
             code = response
         
-        self.manager.save_and_log_states(code, "modeling_code_response.py", per_iteration=True)
+        self.manager.save_and_log_states(code, "modeling_code_response.py")
         return code

@@ -15,13 +15,16 @@ class AssemblerPrompt(BasePrompt):
 You are a senior ML engineer finalizing a project. You have been given a Python script that combines preprocessing and modeling.
 Your task is to ensure the script is clean, robust, and correct.
 
+## CONTEXT
+
+
 ## REQUIREMENTS:
 1.  **Final Script**: The output must be a single, standalone, executable Python file and it should be run on the real data.
 2.  **Validation Score**: If validation data is available, you MUST calculate and print a relevant validation score.
 3.  **Absolute Output Path**: The script MUST save `submission.csv` to the following absolute path: `{output_path}`.
 4.  **Error Handling**: Maintain the `try...except` block for robust execution.
 5.  **Clarity**: Ensure the final script is clean and well-structured.
-6.  **Data Loading**: Keep the data loading code of the preprocessing code. DO NOT CHANGE THE FILE PATHS FROM THE ORIGINAL CODE.
+6.  **Sample Submission File**: Sample submission file given is for template reference (Columns) only. You have to use the test data or test file to generate predictions and your right submission file. In some cases, you must browse the test image folder to get the IDs and data.
 7.  **Do not add any other code.**
 
 ## ORIGINAL CODE:
@@ -35,7 +38,7 @@ Based on the context above, generate the complete and corrected Python code. The
 ## FINAL, CORRECTED CODE:
 """
 
-    def build(self, original_code: str, output_path: str, error_message: str = None) -> str:
+    def build(self, original_code: str, output_path: str, description: Dict, error_message: str = None) -> str:
         """Build prompt to assemble or fix code."""
         
         retry_context = ""
@@ -56,12 +59,15 @@ The code above failed with the following error.
 """
         
         prompt = self.template.format(
+            dataset_name=description.get('name', 'N/A'),
+            file_paths=description.get('link to the dataset', []),
+            output_data_format=description.get('output_data', 'N/A'),
             original_code=original_code,
             output_path=output_path,
             retry_context=retry_context
         )
         
-        self.manager.save_and_log_states(prompt, "assembler_prompt.txt", per_iteration=True)
+        self.manager.save_and_log_states(prompt, "assembler_prompt.txt")
         return prompt
 
     def parse(self, response: str) -> str:
@@ -73,5 +79,5 @@ The code above failed with the following error.
         else:
             code = response
         
-        self.manager.save_and_log_states(code, "final_assembled_code.py", per_iteration=True)
+        self.manager.save_and_log_states(code, "final_assembled_code.py")
         return code

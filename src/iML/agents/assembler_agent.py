@@ -35,6 +35,7 @@ class AssemblerAgent(BaseAgent):
 
         preprocessing_code = self.manager.preprocessing_code
         modeling_code = self.manager.modeling_code
+        description = self.manager.description_analysis
 
         if not preprocessing_code or not modeling_code:
             error = "Preprocessing or modeling code not available."
@@ -55,6 +56,7 @@ class AssemblerAgent(BaseAgent):
             prompt = self.prompt_handler.build(
                 original_code=combined_code,
                 output_path=submission_path,
+                description=description,
                 error_message=error_message
             )
 
@@ -62,13 +64,12 @@ class AssemblerAgent(BaseAgent):
             self.manager.save_and_log_states(
                 content=response,
                 save_name=f"assembler_raw_response_attempt_{attempt + 1}.txt",
-                per_iteration=True
             )
 
             final_code = self.prompt_handler.parse(response)
             
             # 2. Execute final code
-            execution_result = self.manager.execute_code(final_code)
+            execution_result = self.manager.execute_code(final_code, "assembler", attempt + 1)
             
             if execution_result["success"]:
                 logger.info("Final code executed successfully!")

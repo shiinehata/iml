@@ -53,13 +53,12 @@ class PreprocessingCoderAgent(BaseAgent):
             self.manager.save_and_log_states(
                 content=response,
                 save_name=f"preprocessing_coder_raw_response_attempt_{attempt + 1}.txt",
-                per_iteration=True
             )
             
             code_to_execute = self.prompt_handler.parse(response)
 
             # 2. Execute code
-            execution_result = self.manager.execute_code(code_to_execute)
+            execution_result = self.manager.execute_code(code_to_execute, "preprocessing", attempt + 1)
             
             # 3. Check results
             if execution_result["success"]:
