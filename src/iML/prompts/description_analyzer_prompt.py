@@ -15,7 +15,7 @@ Extract the following information:
 - "input_data": A description of the primary input data for the model.
 - "output_data": A description of the expected output format from the model.
 - "task": A summary of the main objective or task of the competition.
-- "data file description": A dictionary where the keys are filenames (e.g., "train.csv") and the values are their descriptions.
+- "data file description": A dictionary where the keys are relative path to the file (e.g., "train.csv", "test/test.csv") and the values are their descriptions.
 - "link to the dataset": A list containing the filenames and folders of the core data files (like train, test, sample submission). Do NOT invent or guess full paths.
 ## EXAMPLE:
 ### INPUT TEXT:
