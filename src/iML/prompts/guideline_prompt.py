@@ -83,17 +83,17 @@ IMPORTANT: Ensure the generated JSON is perfectly valid.
         "reasoning": "explanation for target selection",
         "task_type": "classification/regression/etc"
     }},
+    "modeling": {{
+        "recommended_algorithms": ["algorithm 1"],
+        "model_selection": ["model_name1", "model_name2"],
+        "cross_validation": {{"method": appropriate method, "scoring": appropriate metric}}
+    }},
     "preprocessing": {{
         "data_cleaning": ["specific step 1", "specific step 2"],
         "feature_engineering": ["specific technique 1", "specific technique 2"],
         "missing_values": ["strategy 1", "strategy 2"],
         "feature_selection": ["method 1", "method 2"],
         "data_splitting": {{"train": 0.8, "val": 0.2, "strategy": "appropriate strategy"}}
-    }},
-    "modeling": {{
-        "recommended_algorithms": ["algorithm 1", "algorithm 2"],
-        "model_selection": ["model_name1", "model_name2"],
-        "cross_validation": {{"method": appropriate method, "scoring": appropriate metric}}
     }},
     "evaluation": {{
         "metrics": ["metric 1", "metric 2"],
