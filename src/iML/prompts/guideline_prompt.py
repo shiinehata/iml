@@ -93,7 +93,7 @@ IMPORTANT: Ensure the generated JSON is perfectly valid.
     "modeling": {{
         "recommended_algorithms": ["algorithm 1", "algorithm 2"],
         "model_selection": ["model_name1", "model_name2"],
-        "cross_validation": {{"method": "stratified_kfold", "folds": 5, "scoring": "appropriate_metric"}}
+        "cross_validation": {{"method": appropriate method, "scoring": appropriate metric}}
     }},
     "evaluation": {{
         "metrics": ["metric 1", "metric 2"],
