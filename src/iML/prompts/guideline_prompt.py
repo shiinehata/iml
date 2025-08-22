@@ -32,6 +32,7 @@ class GuidelinePrompt(BasePrompt):
 - Task: {task_desc}
 - Size: {n_rows:,} rows, {n_cols} columns
 - Key Quality Alerts: {alerts}
+- Output format: {output_data}
 
 ## Variables Analysis Summary:
 ```json
@@ -127,6 +128,7 @@ IMPORTANT: Ensure the generated JSON is perfectly valid.
         variables_summary_str = json.dumps(_create_variables_summary(variables), indent=2, ensure_ascii=False)
         dataset_name = task_info.get('name', 'N/A')
         task_desc = task_info.get('task', 'N/A')
+        output_data = task_info.get('output_data', 'N/A')
 
         prompt = self.template.format(
             dataset_name=dataset_name,
@@ -134,7 +136,8 @@ IMPORTANT: Ensure the generated JSON is perfectly valid.
             n_rows=n_rows,
             n_cols=n_cols,
             alerts=alerts[:3] if alerts else 'None',
-            variables_summary_str=variables_summary_str
+            variables_summary_str=variables_summary_str,
+            output_data=output_data
         )
         
         self.manager.save_and_log_states(prompt, "guideline_prompt.txt")
