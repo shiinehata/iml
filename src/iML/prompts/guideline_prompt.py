@@ -64,7 +64,7 @@ For a numeric column 'income' with 25% missing values and a skewed distribution,
 Before generating the final JSON, consider:
 1. Identify the target variable and task type (classification, regression, etc.).
 2. Review each variable's type, statistics, and potential issues.
-3. Decide on specific actions for data preprocessing and modeling based on the data's properties.
+3. Choose the most appropriate modeling algorithms, then choose appropriate and reasonable preprocessing steps for that modeling algorithm.
 4. If using pretrained models, choose the most appropriate ones.
 5. Compile these specific actions into the required JSON format.
 
