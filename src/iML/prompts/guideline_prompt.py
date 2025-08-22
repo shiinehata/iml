@@ -88,7 +88,7 @@ IMPORTANT: Ensure the generated JSON is perfectly valid.
         "feature_engineering": ["specific technique 1", "specific technique 2"],
         "missing_values": ["strategy 1", "strategy 2"],
         "feature_selection": ["method 1", "method 2"],
-        "data_splitting": {{"train": 0.8, "val": 0.2, "strategy": "stratified"}}
+        "data_splitting": {{"train": 0.8, "val": 0.2, "strategy": "appropriate strategy"}}
     }},
     "modeling": {{
         "recommended_algorithms": ["algorithm 1", "algorithm 2"],
