@@ -12,9 +12,6 @@ from ..agents import (
     PreprocessingCoderAgent,
     ModelingCoderAgent,
     AssemblerAgent,
-    FeedbackAgent,
-    CandidateGeneratorAgent,
-    CandidateSelectorAgent,
 )
 from ..llm import ChatLLMFactory
 
@@ -39,11 +36,9 @@ class Manager:
             output_folder: Path to output directory
             config_path: Path to YAML configuration file
         """
-        self.time_step = -1
-
-        # Store required paths
         self.input_data_folder = input_data_folder
         self.output_folder = output_folder
+        self.config = config
 
         # Validate paths
         for path, name in [(input_data_folder, "input_data_folder")]:
@@ -52,8 +47,6 @@ class Manager:
 
         # Create output folder if it doesn't exist
         Path(output_folder).mkdir(parents=True, exist_ok=True)
-
-        self.config = config
 
         self.description_analyzer_agent = DescriptionAnalyzerAgent(
             config=config,
@@ -84,37 +77,24 @@ class Manager:
             manager=self,
             llm_config=self.config.assembler,
         )
-        self.feedback_agent = FeedbackAgent(
-            config=config,
-            manager=self,
-            llm_config=self.config.feedback,
-        )
-        self.candidate_generator_agent = CandidateGeneratorAgent(
-            config=config,
-            manager=self,
-            llm_config=self.config.candidate_generator,
-        )
-        self.candidate_selector_agent = CandidateSelectorAgent(
-            config=config,
-            manager=self,
-            llm_config=self.config.candidate_selector,
-        )
 
-        # Initialize prompts
-        self.generate_initial_prompts()
+        self.context = {
+            "input_data_folder": input_data_folder,
+            "output_folder": output_folder,
+            
+        }
 
-        self.user_inputs: List[str] = []
-        self.error_messages: List[str] = []
-        self.error_prompts: List[str] = []
-        self.python_codes: List[str] = []
-        self.python_file_paths: List[str] = []
-        self.bash_scripts: List[str] = []
-        self.tutorial_retrievals: List[str] = []
-        self.tutorial_prompts: List[str] = []
+    def run_pipeline_new(self):
+        """Run the entire pipeline from description analysis to code generation."""
+        logger.info("Starting AutoML pipeline...")
+
+        
+
+
+        logger.info("AutoML pipeline completed successfully!")
 
     def run_pipeline(self):
         """Run the entire pipeline from description analysis to code generation."""
-        self.time_step = 0
 
         # Step 1: Run description analysis agent
         analysis_result = self.description_analyzer_agent()
@@ -169,200 +149,8 @@ class Manager:
         
         self.assembled_code = assembler_result.get("code")
         logger.info(f"Initial script generated and executed successfully.")
-        
-        """
-        # --- SELF-IMPROVEMENT LOOP ---
-        logger.info("Starting self-improvement loop...")
-
-        # Step 7: Run Feedback Agent
-        feedback_result = self.feedback_agent()
-        if feedback_result.get("status") == "failed":
-            logger.error(f"Feedback generation failed: {feedback_result.get('error')}")
-            # This is not a fatal error, we can still proceed with the original code
-            logger.warning("Proceeding without code improvement.")
-        else:
-            self.feedback = feedback_result.get("feedback")
-            logger.info("Feedback for improvement generated successfully.")
-
-            # Step 8: Run Candidate Generator Agent
-            candidate_result = self.candidate_generator_agent()
-            if candidate_result.get("status") == "failed" or not candidate_result.get("candidates"):
-                logger.error(f"Candidate generation failed: {candidate_result.get('error')}")
-                logger.warning("Proceeding without code improvement.")
-            else:
-                self.candidates = candidate_result.get("candidates")
-                logger.info(f"Generated {len(self.candidates)} valid candidates.")
-
-                # Step 9: Run Candidate Selector Agent
-                selector_result = self.candidate_selector_agent()
-                if selector_result.get("status") == "failed":
-                    logger.error(f"Candidate selection failed: {selector_result.get('error')}")
-                    logger.warning("Proceeding without code improvement.")
-                else:
-                    self.selected_code = selector_result.get("selected_code")
-                    logger.info("Best candidate selected. Preparing for final execution.")
-
-                    # Step 10: Final Execution of the selected code
-                    logger.info("Executing the improved final script...")
-                    final_execution_result = self.execute_code(self.selected_code)
-                    if final_execution_result["success"]:
-                         logger.info(f"Improved script executed successfully.")
-                    else:
-                         logger.error(f"Execution of improved script failed. Error: {final_execution_result['stderr']}")
-                         logger.warning("The improved script failed. The result from the initial script is still available.")
-        """
 
         logger.info("AutoML pipeline completed successfully!")
-
-    def generate_initial_prompts(self):
-
-        # TODO: remove the hard code for "create_venv" (add in tool registry if need installation)
-        asds =1
-
-    @property
-    def user_input(self) -> str:
-        assert self.time_step >= 0, "No user input because the prompt generator is not stepped yet."
-        assert len(self.user_inputs) == self.time_step + 1, "user input is not updated yet"
-        return self.user_inputs[self.time_step]
-
-    @property
-    def python_code(self) -> str:
-        assert self.time_step >= 0, "No python code because the prompt generator is not stepped yet."
-        assert len(self.python_codes) == self.time_step + 1, "python code is not updated yet"
-        return self.python_codes[self.time_step]
-
-    @property
-    def python_file_path(self) -> str:
-        assert self.time_step >= 0, "No python file path because the prompt generator is not stepped yet."
-        assert len(self.python_file_paths) == self.time_step + 1, "python file path is not updated yet"
-        return self.python_file_paths[self.time_step]
-
-    @property
-    def previous_python_code(self) -> str:
-        if self.time_step >= 1:
-            return self.python_codes[self.time_step - 1]
-        else:
-            return ""
-
-    @property
-    def bash_script(self) -> str:
-        assert self.time_step >= 0, "No bash script because the prompt generator is not stepped yet."
-        assert len(self.bash_scripts) == self.time_step + 1, "bash script is not updated yet"
-        return self.bash_scripts[self.time_step]
-
-    @property
-    def previous_bash_script(self) -> str:
-        if self.time_step >= 1:
-            return self.bash_scripts[self.time_step - 1]
-        else:
-            return ""
-
-    @property
-    def error_message(self) -> str:
-        assert self.time_step >= 0, "No error message because the prompt generator is not stepped yet."
-        assert len(self.error_messages) == self.time_step + 1, "error message is not updated yet"
-        return self.error_messages[self.time_step]
-
-    @property
-    def previous_error_message(self) -> str:
-        if self.time_step >= 1:
-            return self.error_messages[self.time_step - 1]
-        else:
-            return ""
-
-    @property
-    def error_prompt(self) -> str:
-        assert self.time_step >= 0, "No error prompt because the prompt generator is not stepped yet."
-        assert len(self.error_prompts) == self.time_step + 1, "error prompt is not updated yet"
-        return self.error_prompts[self.time_step]
-
-    @property
-    def previous_error_prompt(self) -> str:
-        if self.time_step >= 1:
-            return self.error_prompts[self.time_step - 1]
-        else:
-            return ""
-
-    @property
-    def all_previous_error_prompts(self) -> str:
-        if self.time_step >= 1:
-            return "\n\n".join(self.error_prompts[: self.time_step])
-        else:
-            return ""
-
-    @property
-    def tutorial_prompt(self) -> str:
-        assert self.time_step >= 0, "No tutorial prompt because the prompt generator is not stepped yet."
-        assert len(self.tutorial_prompts) == self.time_step + 1, "tutorial prompt is not updated yet"
-        return self.tutorial_prompts[self.time_step]
-
-    @property
-    def previous_tutorial_prompt(self) -> str:
-        if self.time_step >= 1:
-            return self.tutorial_prompts[self.time_step - 1]
-        else:
-            return ""
-
-    @property
-    def tutorial_retrieval(self) -> str:
-        assert self.time_step >= 0, "No tutorial retrieval because the prompt generator is not stepped yet."
-        assert len(self.tutorial_retrievals) == self.time_step + 1, "tutorial retrieval is not updated yet"
-        return self.tutorial_retrievals[self.time_step]
-
-    @property
-    def previous_tutorial_retrieval(self) -> str:
-        if self.time_step >= 1:
-            return self.tutorial_retrievals[self.time_step - 1]
-        else:
-            return ""
-
-    @property
-    def iteration_folder(self) -> str:
-        if self.time_step >= 0:
-            iter_folder = os.path.join(self.output_folder, f"generation_iter_{self.time_step}")
-        else:
-            iter_folder = os.path.join(self.output_folder, "initialization")
-        os.makedirs(iter_folder, exist_ok=True)
-        return iter_folder
-
-    def set_initial_user_input(self, need_user_input, initial_user_input):
-        self.need_user_input = need_user_input
-        self.initial_user_input = initial_user_input
-
-    def step(self):
-        """Step the prompt generator forward."""
-        self.time_step += 1
-
-        user_input = self.initial_user_input
-        # Get per iter user inputs if needed
-        if self.need_user_input:
-            if self.time_step > 0:
-                logger.brief(
-                    f"[bold green]Previous iteration info is stored in:[/bold green] {os.path.join(self.output_folder, f'iteration_{self.time_step - 1}')}"
-                )
-            else:
-                logger.brief(
-                    f"[bold green]Initialization info is stored in:[/bold green] {os.path.join(self.output_folder, 'initialization')}"
-                )
-            if user_input is None:
-                user_input = ""
-
-        assert len(self.user_inputs) == self.time_step
-        self.user_inputs.append(user_input)
-
-        if self.time_step > 0:
-            previous_error_prompt = self.error_analyzer()
-
-            assert len(self.error_prompts) == self.time_step - 1
-            self.error_prompts.append(previous_error_prompt)
-
-        retrieved_tutorials = self.retriever()
-        assert len(self.tutorial_retrievals) == self.time_step
-        self.tutorial_retrievals.append(retrieved_tutorials)
-
-        tutorial_prompt = self.reranker()
-        assert len(self.tutorial_prompts) == self.time_step
-        self.tutorial_prompts.append(tutorial_prompt)
 
     def write_code_script(self, script, output_code_file):
         with open(output_code_file, "w") as file:
@@ -370,7 +158,8 @@ class Manager:
 
     def execute_code(self, code_to_execute: str, phase_name: str, attempt: int) -> dict:
         """
-        Executes a string of Python code in a subprocess.
+        Executes a string of Python code in a subprocess and saves the script,
+        stdout, and stderr to a structured attempts folder.
 
         Args:
             code_to_execute: The Python code to run.
@@ -380,23 +169,26 @@ class Manager:
         Returns:
             A dictionary with execution status, stdout, and stderr.
         """
-        # Create a temporary file to write the code to
-        # Use a unique name for each execution to avoid conflicts
-        temp_script_name = f"{phase_name}_attempt_{attempt}_{uuid.uuid4().hex[:8]}.py"
-        temp_script_path = os.path.join(self.iteration_folder, temp_script_name)
-        
-        self.write_code_script(code_to_execute, temp_script_path)
+        # Create a structured directory for this attempt
+        attempt_dir = Path(self.output_folder) / "attempts" / phase_name / f"attempt_{attempt}"
+        attempt_dir.mkdir(parents=True, exist_ok=True)
 
-        logger.info(f"Executing code from temporary file: {temp_script_path}")
+        # Define file paths for the script, stdout, and stderr
+        script_path = attempt_dir / "code.py"
+        stdout_path = attempt_dir / "stdout.txt"
+        stderr_path = attempt_dir / "stderr.txt"
+
+        # Write the code to the script file
+        self.write_code_script(code_to_execute, str(script_path))
+
+        logger.info(f"Executing code from: {script_path}")
 
         try:
             # Execute the script using subprocess
-            # The script should be executed from a directory where it can access the data
-            # Assuming the data paths in the script are relative to the input folder's parent
             working_dir = str(Path(self.input_data_folder).parent)
             
             process = subprocess.run(
-                ["python", temp_script_path],
+                ["python", str(script_path)],
                 capture_output=True,
                 text=True,
                 check=False,  # Do not raise exception on non-zero exit code
@@ -407,25 +199,34 @@ class Manager:
             stdout = process.stdout
             stderr = process.stderr
 
-            self.save_and_log_states(stdout, f"exec_stdout_{os.path.basename(temp_script_path)}.txt")
-            self.save_and_log_states(stderr, f"exec_stderr_{os.path.basename(temp_script_path)}.txt")
+            # Save stdout and stderr to their respective files
+            with open(stdout_path, "w") as f:
+                f.write(stdout)
+            with open(stderr_path, "w") as f:
+                f.write(stderr)
 
             if process.returncode == 0:
                 logger.info("Code executed successfully.")
                 return {"success": True, "stdout": stdout, "stderr": stderr}
             else:
                 logger.error(f"Code execution failed with return code {process.returncode}.")
-                # Combine stdout and stderr for a complete error context
                 full_error = f"STDOUT:\n{stdout}\n\nSTDERR:\n{stderr}"
                 return {"success": False, "stdout": stdout, "stderr": full_error}
 
         except subprocess.TimeoutExpired as e:
             logger.error(f"Code execution timed out after {self.config.per_execution_timeout} seconds.")
-            # Combine stdout and stderr for a complete error context
-            full_error = f"Timeout Error: Execution exceeded {self.config.per_execution_timeout} seconds.\n\nSTDOUT:\n{e.stdout}\n\nSTDERR:\n{e.stderr}"
+            full_error = f"Timeout Error: Execution exceeded {self.config.per_execution_timeout} seconds.\n\nSTDOUT:\n{e.stdout or ''}\n\nSTDERR:\n{e.stderr or ''}"
+            # Save partial output if available
+            with open(stdout_path, "w") as f:
+                f.write(e.stdout or "")
+            with open(stderr_path, "w") as f:
+                f.write(e.stderr or "")
             return {"success": False, "stdout": e.stdout, "stderr": full_error}
         except Exception as e:
             logger.error(f"An exception occurred during code execution: {e}")
+            # Save exception to stderr file
+            with open(stderr_path, "w") as f:
+                f.write(str(e))
             return {"success": False, "stdout": "", "stderr": str(e)}
 
 

@@ -125,7 +125,7 @@ def get_directory_structure(
                 summary_lines.append(f"\nCould not read file '{rel_path}': {e}")
                 continue
             
-            summary_lines.append(f"\n📄 Structure of file: {rel_path}")
+            summary_lines.append(f"\nStructure of file: {rel_path}")
             summary_lines.append("   Columns: " + ", ".join(df.columns.astype(str)))
             summary_lines.append("   First few rows:")
             df_string = df.to_string(index=False)
