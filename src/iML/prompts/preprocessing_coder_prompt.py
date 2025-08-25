@@ -35,7 +35,7 @@ IMPORTANT: DO NOT CREATE DUMMY DATA.
 2. Include all necessary imports (pandas, scikit-learn, numpy, etc.).
 3. Handle file loading exactly as the provided paths, DO NOT CREATE DUMMY DATA FILES.
 4. Follow the preprocessing guidelines exactly.
-5. Create a function `preprocess_data()` that takes a dictionary of file paths and returns a tuple of preprocessed data (e.g., X_train, X_test, y_train, y_test).
+5. Create a function `preprocess_data()` that takes a dictionary of file paths and returns a tuple of **generators**, one for each data split (e.g., train_generator, val_generator, test_generator).
 6. Include basic error handling and data validation within the function.
 7. Limit comments in the code.
 8. Preprocess both the train and test data consistently.
@@ -57,21 +57,25 @@ import os
 def preprocess_data(file_paths: dict):
     \"\"\"
     Preprocess data according to guidelines.
-    Returns: tuple (e.g., X_train, X_test, y_train, y_test)
+    Preprocesses data and returns batch generators.
+    Args:
+        file_paths: A dictionary of file paths for data splits.
+    Returns:
+        A tuple of generators, one for each data split (e.g., (train_gen, val_gen, test_gen)).
     \"\"\"
     # Your preprocessing code here
     
     # Placeholder return
-    X_train, X_test, y_train, y_test = (None, None, None, None)
+    train_generator, val_generator, test_generator = (None, None, None)
     
-    return X_train, X_test, y_train, y_test
+    return train_generator, val_generator, test_generator
 
 # Test the function
 if __name__ == "__main__":
     try:
         # This assumes the script is run from a directory where it can access the paths
         file_paths = {file_paths_main}
-        preprocess_data(file_paths)
+        train_gen, val_gen, test_gen = preprocess_data(file_paths)
         print("Preprocessing script executed successfully!")
     except Exception as e:
         print(f"An error occurred during preprocessing test: {{e}}", file=sys.stderr)
