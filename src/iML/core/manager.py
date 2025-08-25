@@ -174,7 +174,7 @@ class Manager:
         attempt_dir.mkdir(parents=True, exist_ok=True)
 
         # Define file paths for the script, stdout, and stderr
-        script_path = attempt_dir / "code.py"
+        script_path = attempt_dir / "code_generated.py"
         stdout_path = attempt_dir / "stdout.txt"
         stderr_path = attempt_dir / "stderr.txt"
 
