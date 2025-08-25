@@ -84,8 +84,8 @@ IMPORTANT: Ensure the generated JSON is perfectly valid.
         "task_type": "classification/regression/etc"
     }},
     "modeling": {{
-        "recommended_algorithms": ["algorithm 1"],
-        "model_selection": ["model_name1", "model_name2"],
+        "recommended_algorithms": ["one most suitable algorithm"],
+        "model_selection": ["model_name1"](pretrained model name if using pretrained model),
         "cross_validation": {{"method": appropriate method, "scoring": appropriate metric}}
     }},
     "preprocessing": {{
