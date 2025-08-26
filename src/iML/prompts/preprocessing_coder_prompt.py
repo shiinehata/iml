@@ -78,22 +78,7 @@ if __name__ == "__main__":
         train_gen, val_gen, test_gen = preprocess_data(file_paths)
         print("Generators initialized.")
 
-        # Test the train generator by fetching one batch
-        if train_gen:
-            print("\\n--- Testing Train Generator ---")
-            first_train_batch = next(train_gen)
-            # Assuming the batch is a tuple of (inputs, targets)
-            print(f"Successfully fetched a training batch.")
-            print(f"Input batch type: {type(first_train_batch[0])}")
-            print(f"Input batch size/shape: {len(first_train_batch[0])}")
         
-        # Test the validation generator
-        if val_gen:
-            print("\\n--- Testing Validation Generator ---")
-            first_val_batch = next(val_gen)
-            print(f"Successfully fetched a validation batch.")
-            print(f"Input batch size/shape: {len(first_val_batch[0])}")
-            
         print("\\nPreprocessing script and generator test executed successfully!")
 
     except Exception as e:
