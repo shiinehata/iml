@@ -19,7 +19,7 @@ You are an expert ML engineer. Your task is to generate Python code for modeling
 - **Task Description**: {task_desc}
 - **File Paths**: {file_paths} (LOAD DATA FROM THESE PATHS)
 - **Data File Description**: {data_file_description}
-- **Output data format**: {output_data_format}
+- **Output data format**: {output_data_format} 
 
 ## MODELING GUIDELINES:
 {modeling_guideline}
@@ -34,21 +34,24 @@ The following preprocessing code, including a function `preprocess_data(file_pat
 ```
 
 ## REQUIREMENTS:
-1.  **Generate COMPLETE Python code for the modeling part ONLY.** Do NOT repeat the preprocessing code.
-2.  Your code should start with necessary imports for modeling (e.g., `import pandas as pd`, `from sklearn.ensemble import RandomForestClassifier`).
-3.  Define a function `train_and_predict(X_train, y_train, X_test)`.
-4.  Keep the data loading code of the preprocessing code.
-5.  The main execution block (`if __name__ == "__main__":`) must:
+1.  **CRITICAL: Prioritize libraries and methods from the provided tutorials.** Use libraries and method from or similar to the tutorials whenever possible.
+2.  **Generate COMPLETE Python code for the modeling part ONLY.** Do NOT repeat the preprocessing code.
+3.  Your code should start with necessary imports for modeling, **prioritizing method or libraries similar to the tutorials** (e.g., `import tensorflow as tf`, `from tensorflow import keras`).
+4.  Define a function `train_and_predict(X_train, y_train, X_test)`.
+5.  Keep the data loading code of the preprocessing code.
+6.  The main execution block (`if __name__ == "__main__":`) must:
     a. Call the existing `preprocess_data()` function to get the datasets.
     b. Call your `train_and_predict()` function.
     c. Save the predictions to a `submission.csv` file. The format should typically be two columns: an identifier column and the prediction column.
-6.  **Critical Error Handling**: The main execution block MUST be wrapped in a `try...except` block. If ANY exception occurs, the script MUST print the error to stderr and **exit with a non-zero status code** (`sys.exit(1)`).
-7.  Follow the modeling guidelines for algorithm choice.
-8.  Do not use extensive hyperparameter tuning unless specified. Keep the code efficient.
-9.  Limit comments in the code.
-10. The submission file must have the same structure (number of columns) as the sample submission file provided in the dataset, but may have different ID. You have to use the test data to generate predictions and your right submission file. In some cases, you must browse the test image folder to get the IDs and data.
-11. Your final COMPLETE Python code should have only ONE main function. If there are duplicate main function, remove the duplicates and keep only one main function.
-12. Sample submission file given is for template reference (Columns) only. You have to use the test data or test file to generate predictions and your right submission file. In some cases, you must browse the test image folder to get the IDs and data.
+7.  **Critical Error Handling**: The main execution block MUST be wrapped in a `try...except` block. If ANY exception occurs, the script MUST print the error to stderr and **exit with a non-zero status code** (`sys.exit(1)`).
+8.  **Follow the modeling guidelines AND the tutorial examples for algorithm choice.**
+9.  **Use the same libraries, patterns, and approaches demonstrated in the tutorials whenever possible**
+10. Do not use extensive hyperparameter tuning unless specified. Keep the code efficient.
+11. Limit comments in the code.
+12. The submission file must have the same structure (number of columns) as the sample submission file provided in the dataset, but may have different ID. You have to use the test data to generate predictions and your right submission file. In some cases, you must browse the test image folder to get the IDs and data.
+13. Your final COMPLETE Python code should have only ONE main function. If there are duplicate main function, remove the duplicates and keep only one main function.
+14. Sample submission file given is for template reference (Columns) only. You have to use the test data or test file to generate predictions and your right submission file. In some cases, you must browse the test image folder to get the IDs and data.
+15. **IMPORTANT: When tutorials are provided, follow their import patterns, model architectures, and coding styles closely whenever possible.**
 
 
 ## CODE STRUCTURE EXAMPLE:
@@ -99,9 +102,9 @@ if __name__ == "__main__":
         
         # Format tutorials section
         if tutorials_content.strip():
-            tutorials_section = f"The following tutorials provide examples and best practices that may be relevant to your task:\n\n{tutorials_content}\n\nUse these tutorials as reference for implementing best practices, but adapt the code to your specific dataset and requirements."
+            tutorials_section = f"The following tutorials provide examples and best practices that you MUST prioritize for your task:\n\n{tutorials_content}\n\n**MANDATORY: Use the same libraries, patterns, and approaches shown in these tutorials. Do NOT use alternative libraries unless the tutorials explicitly don't cover your use case.**"
         else:
-            tutorials_section = "No specific tutorials found for this task type. Use general machine learning best practices."
+            tutorials_section = "No specific tutorials found for this task type. Use TensorFlow/Keras ecosystem and general machine learning best practices."
 
         prompt = self.template.format(
             dataset_name=description.get('name', 'N/A'),

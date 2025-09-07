@@ -112,13 +112,25 @@ class TutorialRetriever:
         if task_type:
             keywords.append(task_type)
             
-            # Map task types to domain keywords
+            # Map task types to domain keywords with specific library preferences
             if 'text' in task_type or 'nlp' in task_type:
-                keywords.extend(['text', 'nlp', 'bert', 'tokenization', 'preprocessing'])
+                keywords.extend([
+                    'text', 'nlp', 'bert', 'tokenization', 'preprocessing',
+                    'tensorflow', 'keras', 'tensorflow_hub', 'transformers',
+                    'sentiment', 'imdb', 'text_classification'
+                ])
             elif 'image' in task_type or 'vision' in task_type:
-                keywords.extend(['image', 'computer vision', 'cnn', 'augmentation'])
+                keywords.extend([
+                    'image', 'computer vision', 'cnn', 'augmentation',
+                    'tensorflow', 'keras', 'mobilenet', 'transfer learning',
+                    'image_classification', 'cats_dogs', 'pretrained'
+                ])
             elif 'tabular' in task_type:
-                keywords.extend(['tabular', 'structured data', 'pandas'])
+                keywords.extend([
+                    'tabular', 'structured data', 'pandas', 'csv',
+                    'tensorflow', 'keras', 'preprocessing layers',
+                    'normalization', 'categorical encoding', 'classification'
+                ])
                 
                 # Check for imbalanced data from profiling summary
                 if profiling_summary:
@@ -130,16 +142,16 @@ class TutorialRetriever:
         # Keywords from task description
         task_desc = description_analysis.get('task', '').lower()
         if 'classification' in task_desc:
-            keywords.append('classification')
+            keywords.extend(['classification', 'binary_classification'])
         elif 'regression' in task_desc:
             keywords.append('regression')
         
         # Keywords from input/output data description
         input_data = description_analysis.get('input_data', '').lower()
         if 'image' in input_data:
-            keywords.extend(['image', 'jpg', 'png'])
+            keywords.extend(['image', 'jpg', 'png', 'image_dataset_from_directory'])
         elif 'text' in input_data:
-            keywords.extend(['text', 'natural language'])
+            keywords.extend(['text', 'natural language', 'text_dataset_from_directory'])
         
         # Keywords from profiling summary (iML specific features)
         if profiling_summary:
@@ -153,12 +165,15 @@ class TutorialRetriever:
             # High cardinality categoricals
             high_card = feature_quality.get('high_cardinality_categoricals', [])
             if high_card:
-                keywords.extend(['categorical', 'encoding', 'cardinality'])
+                keywords.extend(['categorical', 'encoding', 'cardinality', 'stringlookup'])
             
             # Date columns
             date_cols = feature_quality.get('date_like_cols', [])
             if date_cols:
                 keywords.extend(['date', 'time series', 'temporal'])
+        
+        # Always prioritize TensorFlow/Keras ecosystem
+        keywords.extend(['tensorflow', 'keras', 'tf.data'])
         
         # Remove duplicates and return
         return list(set(keywords))
@@ -174,24 +189,58 @@ class TutorialRetriever:
         
         score = 0.0
         
+        # Priority libraries/frameworks that should be heavily weighted
+        priority_libs = {
+            'tensorflow': 5.0,
+            'keras': 5.0,
+            'tf.data': 4.0,
+            'tf.keras': 5.0,
+            'tensorflow_hub': 4.0,
+            'mobilenet': 3.0,
+            'bert': 4.0,
+            'preprocessing layers': 3.0,
+            'stringlookup': 3.0,
+            'categoricalencoding': 3.0,
+            'normalization': 3.0
+        }
+        
         for keyword in keywords:
             keyword_lower = keyword.lower()
             
+            # Check if this is a priority library/framework
+            weight_multiplier = 1.0
+            for priority_lib, multiplier in priority_libs.items():
+                if priority_lib in keyword_lower:
+                    weight_multiplier = multiplier
+                    break
+            
             # Title matches get higher weight
             if keyword_lower in title_lower:
-                score += 3.0
+                score += 3.0 * weight_multiplier
             
-            # Content matches
+            # Content matches with priority weighting
             content_matches = content_lower.count(keyword_lower)
-            score += content_matches * 0.1
+            score += content_matches * 0.1 * weight_multiplier
             
             # Path-based matching (e.g., tabular/image/text directories)
             path_str = str(tutorial.path).lower()
             if keyword_lower in path_str:
-                score += 2.0
+                score += 2.0 * weight_multiplier
         
-        # Normalize by number of keywords to prevent bias toward longer keyword lists
-        return score / len(keywords) if keywords else 0.0
+        # Bonus for tutorials that use recommended TensorFlow/Keras ecosystem
+        tf_keras_bonus = 0.0
+        if any(lib in content_lower for lib in ['tensorflow', 'keras', 'tf.keras']):
+            tf_keras_bonus += 10.0
+        
+        if any(lib in content_lower for lib in ['tf.data', 'tensorflow_hub', 'hub.keraslayer']):
+            tf_keras_bonus += 5.0
+            
+        if any(lib in content_lower for lib in ['preprocessing layers', 'stringlookup', 'categoricalencoding']):
+            tf_keras_bonus += 3.0
+        
+        # Normalize by number of keywords and add bonus
+        normalized_score = score / len(keywords) if keywords else 0.0
+        return normalized_score + tf_keras_bonus
     
     def format_tutorials_for_prompt(self, tutorials: List[TutorialInfo]) -> str:
         """Format selected tutorials for inclusion in prompts."""
@@ -199,17 +248,62 @@ class TutorialRetriever:
             return ""
         
         formatted_sections = []
+        
+        # Add header emphasizing the use of tutorial libraries
+        header = """## PRIORITY: Use Libraries and Methods from These Tutorials
+
+The following tutorials demonstrate the PREFERRED libraries and approaches for your task type. 
+You should prioritize using the same libraries, methods, and patterns shown in these tutorials:
+
+**STRONGLY RECOMMENDED LIBRARIES:**
+- TensorFlow/Keras ecosystem (tf.keras, tf.data, tf.keras.layers)
+- TensorFlow Hub for pre-trained models
+- Keras preprocessing layers for data processing
+- Standard data loading utilities (tf.keras.utils.image_dataset_from_directory, etc.)
+
+"""
+        formatted_sections.append(header)
+        
         for i, tutorial in enumerate(tutorials, 1):
-            section = f"## Tutorial {i}: {tutorial.title}\n"
+            section = f"### Tutorial {i}: {tutorial.title}\n"
             section += f"**Path:** {tutorial.path.relative_to(self.tutorial_base_path)}\n"
             section += f"**Relevance Score:** {tutorial.score:.2f}\n\n"
             
-            # Include first 500 characters of content as preview
-            preview = tutorial.content[:500].strip()
-            if len(tutorial.content) > 500:
+            # Extract key libraries used in the tutorial
+            content_lower = tutorial.content.lower()
+            libraries_used = []
+            
+            key_libraries = [
+                'tensorflow', 'keras', 'tf.keras', 'tf.data', 'tensorflow_hub',
+                'pandas', 'numpy', 'matplotlib', 'sklearn', 'hub.keraslayer',
+                'preprocessing layers', 'stringlookup', 'categoricalencoding'
+            ]
+            
+            for lib in key_libraries:
+                if lib in content_lower:
+                    libraries_used.append(lib)
+            
+            if libraries_used:
+                section += f"**Key Libraries Used:** {', '.join(libraries_used[:5])}\n\n"
+            
+            # Include first 800 characters of content as preview (increased from 500)
+            preview = tutorial.content[:800].strip()
+            if len(tutorial.content) > 800:
                 preview += "..."
             section += f"**Content Preview:**\n{preview}\n\n"
             
             formatted_sections.append(section)
+        
+        # Add footer emphasizing adherence to tutorial patterns
+        footer = """
+**IMPORTANT IMPLEMENTATION NOTES:**
+1. Follow the exact import patterns shown in these tutorials
+2. Use the same data loading and preprocessing approaches
+3. Adopt similar model architecture patterns
+4. Maintain consistency with the coding style and structure demonstrated
+5. Prioritize the libraries and methods shown above over alternatives
+
+"""
+        formatted_sections.append(footer)
         
         return "\n".join(formatted_sections)

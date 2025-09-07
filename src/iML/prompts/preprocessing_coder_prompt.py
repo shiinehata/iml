@@ -34,19 +34,22 @@ IMPORTANT: DO NOT CREATE DUMMY DATA.
 {tutorials_section}
 
 ## REQUIREMENTS:
-1. Generate COMPLETE, EXECUTABLE Python code.
-2. Include all necessary imports (pandas, scikit-learn, numpy, etc.).
-3. Handle file loading exactly as the provided paths, DO NOT CREATE DUMMY DATA FILES.
-4. Follow the preprocessing guidelines exactly.
-5. Create a function `preprocess_data()` that takes a dictionary of file paths and returns a tuple of **generators**, one for each data split (e.g., train_generator, val_generator, test_generator).
-6. Include basic error handling and data validation within the function.
-7. Limit comments in the code.
-8. Preprocess both the train and test data consistently.
-9. IMPORTANT: The main execution block (`if __name__ == "__main__":`) should test the function with the actual file paths.
-10. **Critical Error Handling**: The main execution block MUST be wrapped in a `try...except` block. If ANY exception occurs, the script MUST print the error and then **exit with a non-zero status code** using `sys.exit(1)`.
-11. DO NOT USE NLTK
-12. Sample submission file given is for template reference (Columns) only. You have to use the test data or test file to generate predictions and your right submission file. In some cases, you must browse the test image folder to get the IDs and data.
-13. The provided file paths are the only valid paths to load the data. Do not create any dummy data files.
+1. **CRITICAL: Prioritize libraries and methods from the provided tutorials.** Use TensorFlow/Keras ecosystem whenever possible.
+2. Generate COMPLETE, EXECUTABLE Python code.
+3. **Include all necessary imports, prioritizing TensorFlow/Keras** (e.g., `import tensorflow as tf`, `from tensorflow import keras`, `tf.data`, `tf.keras.utils`).
+4. Handle file loading exactly as the provided paths, DO NOT CREATE DUMMY DATA FILES.
+5. **Follow the preprocessing guidelines AND the tutorial examples exactly.**
+6. Create a function `preprocess_data()` that takes a dictionary of file paths and returns a tuple of **generators**, one for each data split (e.g., train_generator, val_generator, test_generator).
+7. **Use the same data loading and preprocessing approaches demonstrated in the tutorials.**
+8. Include basic error handling and data validation within the function.
+9. Limit comments in the code.
+10. Preprocess both the train and test data consistently.
+11. IMPORTANT: The main execution block (`if __name__ == "__main__":`) should test the function with the actual file paths.
+12. **Critical Error Handling**: The main execution block MUST be wrapped in a `try...except` block. If ANY exception occurs, the script MUST print the error and then **exit with a non-zero status code** using `sys.exit(1)`.
+13. DO NOT USE NLTK
+14. Sample submission file given is for template reference (Columns) only. You have to use the test data or test file to generate predictions and your right submission file. In some cases, you must browse the test image folder to get the IDs and data.
+15. The provided file paths are the only valid paths to load the data. Do not create any dummy data files.
+16. **IMPORTANT: When tutorials are provided, follow their import patterns, data loading utilities, and preprocessing styles closely.**
 
 ## CODE STRUCTURE:
 ```python
@@ -98,9 +101,9 @@ if __name__ == "__main__":
         
         # Format tutorials section
         if tutorials_content.strip():
-            tutorials_section = f"The following tutorials provide examples and best practices that may be relevant to your task:\n\n{tutorials_content}\n\nUse these tutorials as reference for implementing best practices, but adapt the code to your specific dataset and requirements."
+            tutorials_section = f"The following tutorials provide examples and best practices that you MUST prioritize for your task:\n\n{tutorials_content}\n\n**MANDATORY: Use the same libraries, data loading utilities, and preprocessing approaches shown in these tutorials. Do NOT use alternative libraries unless the tutorials explicitly don't cover your use case.**"
         else:
-            tutorials_section = "No specific tutorials found for this task type. Use general data preprocessing best practices."
+            tutorials_section = "No specific tutorials found for this task type. Use TensorFlow/Keras ecosystem and general data preprocessing best practices."
 
         prompt = self.template.format(
             dataset_name=description.get('name', 'N/A'),
