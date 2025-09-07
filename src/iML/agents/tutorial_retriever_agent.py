@@ -93,14 +93,12 @@ class TutorialRetrieverAgent(BaseAgent):
             self.manager.save_and_log_states(
                 content=formatted_results,
                 save_name="tutorial_retrieval_results.txt",
-                per_iteration=True,
                 add_uuid=False
             )
         else:
             self.manager.save_and_log_states(
                 content="No tutorials retrieved",
                 save_name="tutorial_retrieval_results.txt",
-                per_iteration=True,
                 add_uuid=False
             )
     
