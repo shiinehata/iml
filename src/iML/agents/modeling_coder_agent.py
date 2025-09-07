@@ -46,11 +46,14 @@ class ModelingCoderAgent(BaseAgent):
             tutorials_content = self.manager.tutorial_retriever_agent.get_tutorials_for_prompt()
 
         # 1. Generate modeling code
+        # Use AI guidelines when tutorials are disabled (-nt flag)
+        use_ai_guidelines = self.manager.no_tutorials
         prompt = self.prompt_handler.build(
             guideline=guideline,
             description=description,
             preprocessing_code=preprocessing_code,
-            tutorials_content=tutorials_content
+            tutorials_content=tutorials_content,
+            use_ai_guidelines=use_ai_guidelines
         )
         
         response = self.llm.assistant_chat(prompt)

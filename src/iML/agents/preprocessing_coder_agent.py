@@ -41,10 +41,13 @@ class PreprocessingCoderAgent(BaseAgent):
         for attempt in range(self.max_retries):
             logger.info(f"Code generation attempt {attempt + 1}/{self.max_retries}...")
 
-            # Get tutorials content if available
+            # Get tutorials content if available (only on first attempt)
             tutorials_content = ""
-            if hasattr(self.manager, 'tutorial_retriever_agent') and hasattr(self.manager, 'relevant_tutorials'):
+            if attempt == 0 and hasattr(self.manager, 'tutorial_retriever_agent') and hasattr(self.manager, 'relevant_tutorials'):
                 tutorials_content = self.manager.tutorial_retriever_agent.get_tutorials_for_prompt()
+                logger.info("Using tutorials for first attempt")
+            elif attempt > 0:
+                logger.info(f"Retry attempt {attempt + 1}: tutorials disabled, using guidelines only")
 
             # 1. Generate code
             prompt = self.prompt_handler.build(

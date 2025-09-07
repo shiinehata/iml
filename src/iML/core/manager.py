@@ -144,7 +144,7 @@ class Manager:
 
         # 3b: Conditionally retrieve pretrained model/embedding suggestions
         model_suggestions = None
-        if self.enable_ai_suggestions:
+        if self.enable_ai_suggestions or self.no_tutorials:
             model_suggestions = self.model_retriever_agent()
             logger.info("AI model suggestions enabled and retrieved.")
         else:

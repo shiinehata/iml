@@ -34,22 +34,20 @@ IMPORTANT: DO NOT CREATE DUMMY DATA.
 {tutorials_section}
 
 ## REQUIREMENTS:
-1. **CRITICAL: USE THE COMPLETE CODE EXAMPLES from the provided tutorials.** Copy and adapt the exact code patterns, imports, and methodologies from the tutorial code blocks.
-2. Generate COMPLETE, EXECUTABLE Python code using the SAME approach as shown in the tutorials whenever possible.
-3. **Include imports EXACTLY as shown in the tutorial code examples whenever possible** (e.g., `import tensorflow as tf`, `from tensorflow import keras`, `tf.data`, `tf.keras.utils`).
-4. Handle file loading exactly as the provided paths, DO NOT CREATE DUMMY DATA FILES.
-5. **Follow the preprocessing guidelines AND replicate the tutorial code structure exactly whenever possible.**
-6. Create a function `preprocess_data()` that takes a dictionary of file paths and returns a tuple of **generators**, one for each data split (e.g., train_generator, val_generator, test_generator).
-7. **MANDATORY: Use the SAME data loading and preprocessing code patterns demonstrated in the tutorials whenever possible.**
-8. Include basic error handling and data validation within the function.
-9. Limit comments in the code.
-10. Preprocess both the train and test data consistently.
-11. IMPORTANT: The main execution block (`if __name__ == "__main__":`) should test the function with the actual file paths.
-12. **Critical Error Handling**: The main execution block MUST be wrapped in a `try...except` block. If ANY exception occurs, the script MUST print the error and then **exit with a non-zero status code** using `sys.exit(1)`.
-13. DO NOT USE NLTK even if the tutorial uses it.
-14. Sample submission file given is for template reference (Columns) only. You have to use the test data or test file to generate predictions and your right submission file. In some cases, you must browse the test image folder to get the IDs and data.
-15. The provided file paths are the only valid paths to load the data. Do not create any dummy data files.
-16. **ABSOLUTE REQUIREMENT: When tutorials provide COMPLETE CODE EXAMPLES, you SHOULD use those exact patterns, structures, and approaches whenever possible. Do NOT deviate from the tutorial code unless absolutely necessary.**
+1. **RECOMMENDED: Consider using the tutorial code examples as a reference when they are helpful.** You may adapt code patterns, imports, and methodologies from the tutorial code blocks if they suit your needs.
+2. Generate COMPLETE, EXECUTABLE Python code using an appropriate approach for your data type.
+3. Handle file loading exactly as the provided paths, DO NOT CREATE DUMMY DATA FILES.
+4. Create a function `preprocess_data()` that takes a dictionary of file paths and returns preprocessed data in an appropriate format (could be arrays, generators, datasets, etc.).
+5. **SUGGESTED: Consider tutorial data loading and preprocessing patterns when they match your task, but adapt as needed.**
+6. Include basic error handling and data validation within the function.
+7. Limit comments in the code.
+8. Preprocess both the train and test data consistently.
+9. IMPORTANT: The main execution block (`if __name__ == "__main__":`) should test the function with the actual file paths.
+10. **Critical Error Handling**: The main execution block MUST be wrapped in a `try...except` block. If ANY exception occurs, the script MUST print the error and then **exit with a non-zero status code** using `sys.exit(1)`.
+11. DO NOT USE NLTK even if the tutorial uses it.
+12. Sample submission file given is for template reference (Columns) only. You have to use the test data or test file to generate predictions and your right submission file. In some cases, you must browse the test image folder to get the IDs and data.
+13. The provided file paths are the only valid paths to load the data. Do not create any dummy data files.
+14. **OPTIONAL: When tutorials provide helpful code examples, you may use those patterns and structures as inspiration, but feel free to adapt or use different approaches if they better fit your specific needs.**
 
 ## CODE STRUCTURE:
 ```python
@@ -101,17 +99,17 @@ if __name__ == "__main__":
         
         # Format tutorials section
         if tutorials_content.strip():
-            tutorials_section = f"""The following tutorials provide COMPLETE CODE EXAMPLES and best practices that you MUST prioritize for your task:
+            tutorials_section = f"""The following tutorials provide code examples and approaches that you may find helpful for your task:
 
 {tutorials_content}
 
-**CRITICAL REQUIREMENTS: DO THIS WHEN POSSIBLE**
-1. **USE THE COMPLETE CODE EXAMPLES** provided above as your primary reference
-2. **COPY AND ADAPT** the exact import patterns, data loading utilities, and preprocessing approaches shown
-3. **FOLLOW THE SAME CODING STRUCTURE** and patterns demonstrated in the code examples
-4. **PRIORITIZE the libraries and methods** explicitly used in the tutorial code blocks
-5. Do NOT use alternative libraries unless the tutorials explicitly don't cover your use case
-6. **The tutorial code examples above contain the EXACT methods you should use** - adapt them to your specific dataset""ha
+**TUTORIAL GUIDANCE (OPTIONAL - USE IF HELPFUL):**
+1. **Consider reviewing** the tutorial code examples above for potential preprocessing approaches
+2. **You may adapt** import patterns, data loading utilities, and preprocessing methods shown if they suit your needs
+3. **Tutorial coding structures** can serve as inspiration for your implementation
+4. **Feel free to use** the libraries and methods from tutorials when they fit your requirements
+5. **Other approaches are acceptable** - use your judgment on what works best for your specific dataset
+6. **Tutorial methods can be adapted** to your specific dataset and requirements as needed"""
         else:
             tutorials_section = "No specific tutorials found for this task type. Use TensorFlow/Keras ecosystem and general data preprocessing best practices."
 

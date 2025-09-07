@@ -33,7 +33,7 @@ def main():
     parser.add_argument(
         "-nt", "--no-tutorials", 
         action="store_true",
-        help="Disable tutorial retrieval and rely on AI model suggestions instead"
+        help="Disable tutorial retrieval and enable AI modeling guidelines instead"
     )
     parser.add_argument(
         "--enable-ai-suggestions", 
