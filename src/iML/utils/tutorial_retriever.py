@@ -27,6 +27,7 @@ class TutorialRetriever:
     def __init__(self, tutorial_base_path: str = "src/iML/tutorial"):
         self.tutorial_base_path = Path(tutorial_base_path)
         self.tutorials_cache = None
+        self.is_debug_mode = False  # Track if we're in debug mode
         self._load_tutorials()
     
     def _load_tutorials(self) -> None:
@@ -61,7 +62,8 @@ class TutorialRetriever:
         self,
         description_analysis: Dict[str, Any],
         profiling_summary: Optional[Dict[str, Any]] = None,
-        max_tutorials: int = 2
+        max_tutorials: int = 2,
+        is_debug_mode: bool = False
     ) -> List[TutorialInfo]:
         """
         Retrieve relevant tutorials based on analysis results.
@@ -70,10 +72,18 @@ class TutorialRetriever:
             description_analysis: Results from DescriptionAnalyzerAgent
             profiling_summary: Results from ProfilingSummarizerAgent (optional)
             max_tutorials: Maximum number of tutorials to return
+            is_debug_mode: Whether this is for debugging/fixing errors (no tutorials needed)
             
         Returns:
             List of relevant TutorialInfo objects
         """
+        # Store debug mode state
+        self.is_debug_mode = is_debug_mode
+        
+        # If in debug mode, don't return any tutorials
+        if is_debug_mode:
+            logger.info("Debug mode detected - skipping tutorial retrieval")
+            return []
         if not self.tutorials_cache:
             logger.info("No tutorials available in cache")
             return []
@@ -247,19 +257,19 @@ class TutorialRetriever:
         if not tutorials:
             return ""
         
+        # If in debug mode, return empty string (no tutorials needed for debugging)
+        if self.is_debug_mode:
+            return ""
+        
         formatted_sections = []
         
         # Add header emphasizing the use of tutorial libraries
         header = """## PRIORITY: Use Libraries and Methods from These Tutorials
 
 The following tutorials demonstrate the PREFERRED libraries and approaches for your task type. 
-You should prioritize using the same libraries, methods, and patterns shown in these tutorials:
+You should prioritize using the same libraries, methods, and patterns shown in these tutorials.
 
-**STRONGLY RECOMMENDED LIBRARIES:**
-- TensorFlow/Keras ecosystem (tf.keras, tf.data, tf.keras.layers)
-- TensorFlow Hub for pre-trained models
-- Keras preprocessing layers for data processing
-- Standard data loading utilities (tf.keras.utils.image_dataset_from_directory, etc.)
+**COMPLETE TUTORIAL CONTENT INCLUDED BELOW - USE AS PRIMARY REFERENCE**
 
 """
         formatted_sections.append(header)
@@ -286,24 +296,144 @@ You should prioritize using the same libraries, methods, and patterns shown in t
             if libraries_used:
                 section += f"**Key Libraries Used:** {', '.join(libraries_used[:5])}\n\n"
             
-            # Include first 800 characters of content as preview (increased from 500)
-            preview = tutorial.content[:800].strip()
-            if len(tutorial.content) > 800:
-                preview += "..."
-            section += f"**Content Preview:**\n{preview}\n\n"
+            # Include COMPLETE tutorial content (no character limits)
+            section += "**COMPLETE TUTORIAL CONTENT:**\n\n"
+            section += "```markdown\n"
+            section += tutorial.content
+            section += "\n```\n\n"
             
             formatted_sections.append(section)
         
         # Add footer emphasizing adherence to tutorial patterns
         footer = """
-**IMPORTANT IMPLEMENTATION NOTES:**
-1. Follow the exact import patterns shown in these tutorials
-2. Use the same data loading and preprocessing approaches
-3. Adopt similar model architecture patterns
+**CRITICAL IMPLEMENTATION NOTES:**
+1. **USE THE COMPLETE TUTORIAL CONTENT ABOVE as your primary reference**
+2. Follow the exact import patterns, data loading, and preprocessing approaches shown
+3. Adopt the same model architectures, training loops, and evaluation methods
 4. Maintain consistency with the coding style and structure demonstrated
-5. Prioritize the libraries and methods shown above over alternatives
+5. Prioritize the libraries and methods shown in tutorials over alternatives
+6. **DO NOT SUMMARIZE OR ABBREVIATE - implement following the complete examples above**
 
 """
         formatted_sections.append(footer)
         
         return "\n".join(formatted_sections)
+    
+    def set_debug_mode(self, is_debug: bool = True) -> None:
+        """Set debug mode state. When True, tutorials won't be included in prompts."""
+        self.is_debug_mode = is_debug
+        logger.info(f"Debug mode {'enabled' if is_debug else 'disabled'}")
+    
+    def reset_debug_mode(self) -> None:
+        """Reset debug mode to False (normal mode)."""
+        self.is_debug_mode = False
+        logger.info("Debug mode reset - tutorials will be included in prompts")
+    
+    def _extract_all_code_blocks(self, content: str) -> List[str]:
+        """Extract all code blocks from tutorial content."""
+        code_blocks = []
+        lines = content.split('\n')
+        current_code_block = []
+        in_code_block = False
+        
+        for line in lines:
+            # Check for various code indicators
+            line_stripped = line.strip()
+            
+            # Method 1: Traditional markdown code blocks
+            if line_stripped.startswith('```') and ('python' in line_stripped or line_stripped == '```'):
+                if in_code_block:
+                    # End of code block
+                    if current_code_block:
+                        code_blocks.append('\n'.join(current_code_block).strip())
+                        current_code_block = []
+                    in_code_block = False
+                else:
+                    # Start of code block
+                    in_code_block = True
+                continue
+            
+            # Method 2: Code blocks marked with "code:" prefix
+            if line_stripped.startswith('code:') or line_stripped == 'code:':
+                # Start collecting code until we hit a non-indented line or another section
+                i = lines.index(line) + 1
+                temp_code = []
+                while i < len(lines):
+                    next_line = lines[i]
+                    # Stop if we hit another section marker or empty line followed by non-indented text
+                    if (next_line.strip() and not next_line.startswith(' ') and not next_line.startswith('\t') 
+                        and not next_line.strip().startswith('#') and next_line.strip() != ''):
+                        # Check if this looks like a section header
+                        if any(keyword in next_line.lower() for keyword in ['step', 'section', 'part', 'tutorial', 'note:', 'example']):
+                            break
+                        # If it's a line that looks like regular code, include it
+                        if any(char in next_line for char in ['=', '(', ')', '[', ']', 'import', 'def ', 'class ']):
+                            temp_code.append(next_line)
+                        else:
+                            break
+                    elif next_line.strip():  # Non-empty line
+                        temp_code.append(next_line)
+                    elif not next_line.strip() and temp_code:  # Empty line, but we have code
+                        temp_code.append(next_line)
+                    i += 1
+                
+                if temp_code:
+                    # Clean up the code block
+                    while temp_code and not temp_code[0].strip():
+                        temp_code.pop(0)
+                    while temp_code and not temp_code[-1].strip():
+                        temp_code.pop()
+                    if temp_code:
+                        code_blocks.append('\n'.join(temp_code).strip())
+                continue
+            
+            # Method 3: Lines that look like Python code (imports, functions, etc.)
+            if not in_code_block and line_stripped:
+                # Detect standalone code lines
+                code_indicators = [
+                    'import ', 'from ', 'def ', 'class ', 'if __name__',
+                    '= tf.', '= pd.', '= np.', 'print(', '.fit(', '.predict(',
+                    'model = ', 'dataset = ', 'data = '
+                ]
+                
+                if any(indicator in line for indicator in code_indicators):
+                    # Start collecting a code block
+                    temp_code = [line]
+                    line_idx = lines.index(line)
+                    
+                    # Look ahead for more code lines
+                    i = line_idx + 1
+                    while i < len(lines):
+                        next_line = lines[i]
+                        if not next_line.strip():  # Empty line
+                            temp_code.append(next_line)
+                        elif (next_line.startswith(' ') or next_line.startswith('\t') or
+                              any(indicator in next_line for indicator in code_indicators) or
+                              any(char in next_line for char in ['=', '(', ')', '[', ']', '.', '+', '-', '*', '/'])):
+                            temp_code.append(next_line)
+                        else:
+                            break
+                        i += 1
+                    
+                    if len(temp_code) > 1 or len(line.strip()) > 10:  # Only include substantial code blocks
+                        # Clean up
+                        while temp_code and not temp_code[-1].strip():
+                            temp_code.pop()
+                        if temp_code:
+                            code_blocks.append('\n'.join(temp_code).strip())
+            
+            # Collect lines when in a markdown code block
+            if in_code_block:
+                current_code_block.append(line)
+        
+        # Handle any remaining code block
+        if in_code_block and current_code_block:
+            code_blocks.append('\n'.join(current_code_block).strip())
+        
+        # Remove duplicates and filter out very short snippets
+        unique_blocks = []
+        for block in code_blocks:
+            if len(block.strip()) > 20 and block not in unique_blocks:  # Only substantial code blocks
+                unique_blocks.append(block)
+        
+        return unique_blocks

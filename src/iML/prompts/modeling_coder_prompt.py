@@ -34,9 +34,9 @@ The following preprocessing code, including a function `preprocess_data(file_pat
 ```
 
 ## REQUIREMENTS:
-1.  **CRITICAL: Prioritize libraries and methods from the provided tutorials.** Use libraries and method from or similar to the tutorials whenever possible.
+1.  **CRITICAL: USE THE COMPLETE CODE EXAMPLES from the provided tutorials whenever possible.** Copy and adapt the exact model architectures, training loops, and methodologies from the tutorial code blocks.
 2.  **Generate COMPLETE Python code for the modeling part ONLY.** Do NOT repeat the preprocessing code.
-3.  Your code should start with necessary imports for modeling, **prioritizing method or libraries similar to the tutorials** (e.g., `import tensorflow as tf`, `from tensorflow import keras`).
+3.  Your code should start with imports EXACTLY as shown in the tutorial code examples whenever possible (e.g., `import tensorflow as tf`, `from tensorflow import keras`).
 4.  Define a function `train_and_predict(X_train, y_train, X_test)`.
 5.  Keep the data loading code of the preprocessing code.
 6.  The main execution block (`if __name__ == "__main__":`) must:
@@ -44,14 +44,14 @@ The following preprocessing code, including a function `preprocess_data(file_pat
     b. Call your `train_and_predict()` function.
     c. Save the predictions to a `submission.csv` file. The format should typically be two columns: an identifier column and the prediction column.
 7.  **Critical Error Handling**: The main execution block MUST be wrapped in a `try...except` block. If ANY exception occurs, the script MUST print the error to stderr and **exit with a non-zero status code** (`sys.exit(1)`).
-8.  **Follow the modeling guidelines AND the tutorial examples for algorithm choice.**
-9.  **Use the same libraries, patterns, and approaches demonstrated in the tutorials whenever possible**
+8.  **Follow the modeling guidelines AND replicate the tutorial code structure for algorithm choice.**
+9.  **MANDATORY: Use the SAME model architectures, training approaches, and code patterns demonstrated in the tutorials whenever possible**
 10. Do not use extensive hyperparameter tuning unless specified. Keep the code efficient.
 11. Limit comments in the code.
 12. The submission file must have the same structure (number of columns) as the sample submission file provided in the dataset, but may have different ID. You have to use the test data to generate predictions and your right submission file. In some cases, you must browse the test image folder to get the IDs and data.
 13. Your final COMPLETE Python code should have only ONE main function. If there are duplicate main function, remove the duplicates and keep only one main function.
 14. Sample submission file given is for template reference (Columns) only. You have to use the test data or test file to generate predictions and your right submission file. In some cases, you must browse the test image folder to get the IDs and data.
-15. **IMPORTANT: When tutorials are provided, follow their import patterns, model architectures, and coding styles closely whenever possible.**
+15. **ABSOLUTE REQUIREMENT: When tutorials provide COMPLETE CODE EXAMPLES, you SHOULD use those exact model structures, training patterns, and approaches whenever possible. Do NOT deviate from the tutorial code unless absolutely necessary.**
 
 
 ## CODE STRUCTURE EXAMPLE:
@@ -102,7 +102,17 @@ if __name__ == "__main__":
         
         # Format tutorials section
         if tutorials_content.strip():
-            tutorials_section = f"The following tutorials provide examples and best practices that you MUST prioritize for your task:\n\n{tutorials_content}\n\n**MANDATORY: Use the same libraries, patterns, and approaches shown in these tutorials. Do NOT use alternative libraries unless the tutorials explicitly don't cover your use case.**"
+            tutorials_section = f"""The following tutorials provide COMPLETE CODE EXAMPLES and best practices that you MUST prioritize for your task:
+
+{tutorials_content}
+
+**CRITICAL REQUIREMENTS:**
+1. **USE THE COMPLETE CODE EXAMPLES** provided above as your primary reference for model architecture and training
+2. **COPY AND ADAPT** the exact import patterns, model building, and training approaches shown
+3. **FOLLOW THE SAME CODING STRUCTURE** and patterns demonstrated in the code examples
+4. **PRIORITIZE the libraries and methods** explicitly used in the tutorial code blocks
+5. Do NOT use alternative libraries unless the tutorials explicitly don't cover your use case
+6. **The tutorial code examples above contain the EXACT methods you should use** - adapt them to your specific dataset and modeling task"""
         else:
             tutorials_section = "No specific tutorials found for this task type. Use TensorFlow/Keras ecosystem and general machine learning best practices."
 

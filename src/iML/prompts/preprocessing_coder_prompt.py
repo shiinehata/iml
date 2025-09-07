@@ -34,13 +34,13 @@ IMPORTANT: DO NOT CREATE DUMMY DATA.
 {tutorials_section}
 
 ## REQUIREMENTS:
-1. **CRITICAL: Prioritize libraries and methods from the provided tutorials.** Use libraries and method from or similar to the tutorials whenever possible.
-2. Generate COMPLETE, EXECUTABLE Python code.
-3. **Include all necessary imports, similar to the tutorials whenever possible** (e.g., `import tensorflow as tf`, `from tensorflow import keras`, `tf.data`, `tf.keras.utils`).
+1. **CRITICAL: USE THE COMPLETE CODE EXAMPLES from the provided tutorials.** Copy and adapt the exact code patterns, imports, and methodologies from the tutorial code blocks.
+2. Generate COMPLETE, EXECUTABLE Python code using the SAME approach as shown in the tutorials whenever possible.
+3. **Include imports EXACTLY as shown in the tutorial code examples whenever possible** (e.g., `import tensorflow as tf`, `from tensorflow import keras`, `tf.data`, `tf.keras.utils`).
 4. Handle file loading exactly as the provided paths, DO NOT CREATE DUMMY DATA FILES.
-5. **Follow the preprocessing guidelines AND the tutorial examples exactly whenever possible.**
+5. **Follow the preprocessing guidelines AND replicate the tutorial code structure exactly whenever possible.**
 6. Create a function `preprocess_data()` that takes a dictionary of file paths and returns a tuple of **generators**, one for each data split (e.g., train_generator, val_generator, test_generator).
-7. **Use the same data loading and preprocessing approaches demonstrated in the tutorials whenever possible.**
+7. **MANDATORY: Use the SAME data loading and preprocessing code patterns demonstrated in the tutorials whenever possible.**
 8. Include basic error handling and data validation within the function.
 9. Limit comments in the code.
 10. Preprocess both the train and test data consistently.
@@ -49,7 +49,7 @@ IMPORTANT: DO NOT CREATE DUMMY DATA.
 13. DO NOT USE NLTK even if the tutorial uses it.
 14. Sample submission file given is for template reference (Columns) only. You have to use the test data or test file to generate predictions and your right submission file. In some cases, you must browse the test image folder to get the IDs and data.
 15. The provided file paths are the only valid paths to load the data. Do not create any dummy data files.
-16. **IMPORTANT: When tutorials are provided, follow their import patterns, data loading utilities, and preprocessing styles closely whenever possible.**
+16. **ABSOLUTE REQUIREMENT: When tutorials provide COMPLETE CODE EXAMPLES, you SHOULD use those exact patterns, structures, and approaches whenever possible. Do NOT deviate from the tutorial code unless absolutely necessary.**
 
 ## CODE STRUCTURE:
 ```python
@@ -101,7 +101,17 @@ if __name__ == "__main__":
         
         # Format tutorials section
         if tutorials_content.strip():
-            tutorials_section = f"The following tutorials provide examples and best practices that you MUST prioritize for your task:\n\n{tutorials_content}\n\n**MANDATORY: Use the same libraries, data loading utilities, and preprocessing approaches shown in these tutorials. Do NOT use alternative libraries unless the tutorials explicitly don't cover your use case.**"
+            tutorials_section = f"""The following tutorials provide COMPLETE CODE EXAMPLES and best practices that you MUST prioritize for your task:
+
+{tutorials_content}
+
+**CRITICAL REQUIREMENTS: DO THIS WHEN POSSIBLE**
+1. **USE THE COMPLETE CODE EXAMPLES** provided above as your primary reference
+2. **COPY AND ADAPT** the exact import patterns, data loading utilities, and preprocessing approaches shown
+3. **FOLLOW THE SAME CODING STRUCTURE** and patterns demonstrated in the code examples
+4. **PRIORITIZE the libraries and methods** explicitly used in the tutorial code blocks
+5. Do NOT use alternative libraries unless the tutorials explicitly don't cover your use case
+6. **The tutorial code examples above contain the EXACT methods you should use** - adapt them to your specific dataset""ha
         else:
             tutorials_section = "No specific tutorials found for this task type. Use TensorFlow/Keras ecosystem and general data preprocessing best practices."
 

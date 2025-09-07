@@ -335,7 +335,8 @@ Take the predicted_class ID (such as 653) and fetch the ImageNet dataset labels 
 labels_path = tf.keras.utils.get_file('ImageNetLabels.txt','https://storage.googleapis.com/download.tensorflow.org/data/ImageNetLabels.txt')
 imagenet_labels = np.array(open(labels_path).read().splitlines())
 
-plt.imshow(grace*hopper)
+plt.imshow(grace\*hopper)
 plt.axis('off')
 predicted_class_name = imagenet_labels[predicted_class]
-* = plt.title("Prediction: " + predicted_class_name.title())
+
+- = plt.title("Prediction: " + predicted_class_name.title())

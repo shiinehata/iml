@@ -31,28 +31,15 @@ from sklearn.preprocessing import StandardScaler
 mpl.rcParams['figure.figsize'] = (12, 10)
 colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
-Data processing and exploration
-Download the Kaggle Credit Card Fraud data set
-
-Pandas is a Python library with many helpful utilities for loading and working with structured data. It can be used to download CSVs into a Pandas DataFrame.
-Note: This dataset has been collected and analysed during a research collaboration of Worldline and the Machine Learning Group of ULB (Université Libre de Bruxelles) on big data mining and fraud detection. More details on current and past projects on related topics are available here and the page of the DefeatFraud project
-
 file = tf.keras.utils
 raw_df = pd.read_csv('https://storage.googleapis.com/download.tensorflow.org/data/creditcard.csv')
 raw_df.head()
 raw_df[['Time', 'V1', 'V2', 'V3', 'V4', 'V5', 'V26', 'V27', 'V28', 'Amount', 'Class']].describe()
-Examine the class label imbalance
-
-Let's look at the dataset imbalance:
 
 neg, pos = np.bincount(raw_df['Class'])
 total = neg + pos
 print('Examples:\n Total: {}\n Positive: {} ({:.2f}% of total)\n'.format(
 total, pos, 100 \* pos / total))
-This shows the small fraction of positive samples.
-Clean, split and normalize the data
-
-The raw data has a few issues. First the Time and Amount columns are too variable to use directly. Drop the Time column (since it's not clear what it means) and take the log of the Amount column to reduce its range.
 
 cleaned_df = raw_df.copy()
 
@@ -64,8 +51,6 @@ cleaned_df.pop('Time')
 
 eps = 0.001 # 0 => 0.1¢
 cleaned_df['Log Amount'] = np.log(cleaned_df.pop('Amount')+eps)
-
-Split the dataset into train, validation, and test sets. The validation set is used during the model fitting to evaluate the loss and any metrics, however the model is not fit with this data. The test set is completely unused during the training phase and is only used at the end to evaluate how well the model generalizes to new data. This is especially important with imbalanced datasets where overfitting is a significant concern from the lack of training data.
 
 # Use a utility from sklearn to split and shuffle your dataset.
 
@@ -83,15 +68,9 @@ train_features = np.array(train_df)
 val_features = np.array(val_df)
 test_features = np.array(test_df)
 
-We check whether the distribution of the classes in the three sets is about the same or not.
-
 print(f'Average class probability in training set: {train_labels.mean():.4f}')
 print(f'Average class probability in validation set: {val_labels.mean():.4f}')
 print(f'Average class probability in test set: {test_labels.mean():.4f}')
-Given the small number of positive labels, this seems about right.
-
-Normalize the input features using the sklearn StandardScaler. This will set the mean to 0 and standard deviation to 1.
-Note: The StandardScaler is only fit using the train_features to be sure the model is not peeking at the validation or test sets.
 
 scaler = StandardScaler()
 train_features = scaler.fit_transform(train_features)
@@ -110,30 +89,6 @@ print('Test labels shape:', test_labels.shape)
 print('Training features shape:', train_features.shape)
 print('Validation features shape:', val_features.shape)
 print('Test features shape:', test_features.shape)
-Caution: If you want to deploy a model, it's critical that you preserve the preprocessing calculations. The easiest way to implement them as layers, and attach them to your model before export.
-Look at the data distribution
-
-Next compare the distributions of the positive and negative examples over a few features. Good questions to ask yourself at this point are:
-
-    Do these distributions make sense?
-        Yes. You've normalized the input and these are mostly concentrated in the +/- 2 range.
-    Can you see the difference between the distributions?
-        Yes the positive examples contain a much higher rate of extreme values.
-
-pos_df = pd.DataFrame(train_features[ bool_train_labels], columns=train_df.columns)
-neg_df = pd.DataFrame(train_features[~bool_train_labels], columns=train_df.columns)
-
-sns.jointplot(x=pos_df['V5'], y=pos_df['V6'],
-kind='hex', xlim=(-5,5), ylim=(-5,5))
-plt.suptitle("Positive distribution")
-
-sns.jointplot(x=neg\*df['V5'], y=neg_df['V6'],
-kind='hex', xlim=(-5,5), ylim=(-5,5))
-
-- = plt.suptitle("Negative distribution")
-  Define the model and metrics
-
-Define a function that creates a simple neural network with a densly connected hidden layer, a dropout layer to reduce overfitting, and an output sigmoid layer that returns the probability of a transaction being fraudulent:
 
 METRICS = [
 keras.metrics.BinaryCrossentropy(name='cross entropy'), # same as model's loss
@@ -197,15 +152,6 @@ The following metrics take into account all possible choices of thresholds
 
     AUC refers to the Area Under the Curve of a Receiver Operating Characteristic curve (ROC-AUC). This metric is equal to the probability that a classifier will rank a random positive sample higher than a random negative sample.
     AUPRC refers to Area Under the Curve of the Precision-Recall Curve. This metric computes precision-recall pairs for different probability thresholds.
-
-Read more:
-
-    Strictly Proper Scoring Rules, Prediction, and Estimation
-    True vs. False and Positive vs. Negative
-    Accuracy
-    Precision and Recall
-    ROC-AUC
-    Relationship between Precision-Recall and ROC Curves
 
 Baseline model
 Build the model
