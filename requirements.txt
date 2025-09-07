@@ -189,3 +189,5 @@ zstandard==0.23.0
 optuna
 hyperopt
 tensorflow
+tensorflow-hub
+tensorflow-text

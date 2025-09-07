@@ -41,12 +41,18 @@ class PreprocessingCoderAgent(BaseAgent):
         for attempt in range(self.max_retries):
             logger.info(f"Code generation attempt {attempt + 1}/{self.max_retries}...")
 
+            # Get tutorials content if available
+            tutorials_content = ""
+            if hasattr(self.manager, 'tutorial_retriever_agent') and hasattr(self.manager, 'relevant_tutorials'):
+                tutorials_content = self.manager.tutorial_retriever_agent.get_tutorials_for_prompt()
+
             # 1. Generate code
             prompt = self.prompt_handler.build(
                 guideline=guideline,
                 description=description,
                 previous_code=code_to_execute,
-                error_message=error_message
+                error_message=error_message,
+                tutorials_content=tutorials_content
             )
 
             response = self.llm.assistant_chat(prompt)

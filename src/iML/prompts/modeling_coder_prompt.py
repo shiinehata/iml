@@ -24,6 +24,9 @@ You are an expert ML engineer. Your task is to generate Python code for modeling
 ## MODELING GUIDELINES:
 {modeling_guideline}
 
+## RELEVANT TUTORIALS:
+{tutorials_section}
+
 ## PREPROCESSING CODE (Do NOT include this in your response):
 The following preprocessing code, including a function `preprocess_data(file_paths: dict)`, will be available in the execution environment. You must call it to get the data.
 ```python
@@ -89,10 +92,16 @@ if __name__ == "__main__":
 ```
 """
 
-    def build(self, guideline: Dict, description: Dict, preprocessing_code: str, previous_code: str = None, error_message: str = None) -> str:
+    def build(self, guideline: Dict, description: Dict, preprocessing_code: str, previous_code: str = None, error_message: str = None, tutorials_content: str = "") -> str:
         """Build prompt to generate modeling code."""
         
         modeling_guideline = guideline.get('modeling', {})
+        
+        # Format tutorials section
+        if tutorials_content.strip():
+            tutorials_section = f"The following tutorials provide examples and best practices that may be relevant to your task:\n\n{tutorials_content}\n\nUse these tutorials as reference for implementing best practices, but adapt the code to your specific dataset and requirements."
+        else:
+            tutorials_section = "No specific tutorials found for this task type. Use general machine learning best practices."
 
         prompt = self.template.format(
             dataset_name=description.get('name', 'N/A'),
@@ -102,7 +111,8 @@ if __name__ == "__main__":
             data_file_description=description.get('data file description', 'N/A'),
             output_data_format=description.get('output_data', 'N/A'),
             modeling_guideline=json.dumps(modeling_guideline, indent=2),
-            preprocessing_code=preprocessing_code
+            preprocessing_code=preprocessing_code,
+            tutorials_section=tutorials_section
         )
 
         if previous_code and error_message:

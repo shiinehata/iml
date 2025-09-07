@@ -30,6 +30,9 @@ IMPORTANT: DO NOT CREATE DUMMY DATA.
 ## TARGET INFO:
 {target_info}
 
+## RELEVANT TUTORIALS:
+{tutorials_section}
+
 ## REQUIREMENTS:
 1. Generate COMPLETE, EXECUTABLE Python code.
 2. Include all necessary imports (pandas, scikit-learn, numpy, etc.).
@@ -87,11 +90,17 @@ if __name__ == "__main__":
 ````
 """
 
-    def build(self, guideline: Dict, description: Dict, previous_code: str = None, error_message: str = None) -> str:
+    def build(self, guideline: Dict, description: Dict, previous_code: str = None, error_message: str = None, tutorials_content: str = "") -> str:
         """Build prompt to generate preprocessing code."""
         
         preprocessing_guideline = guideline.get('preprocessing', {})
         target_info = guideline.get("target_identification", {})
+        
+        # Format tutorials section
+        if tutorials_content.strip():
+            tutorials_section = f"The following tutorials provide examples and best practices that may be relevant to your task:\n\n{tutorials_content}\n\nUse these tutorials as reference for implementing best practices, but adapt the code to your specific dataset and requirements."
+        else:
+            tutorials_section = "No specific tutorials found for this task type. Use general data preprocessing best practices."
 
         prompt = self.template.format(
             dataset_name=description.get('name', 'N/A'),
@@ -102,7 +111,8 @@ if __name__ == "__main__":
             file_paths=description.get('link to the dataset', []),
             file_paths_main=description.get('link to the dataset', []),
             preprocessing_guideline=json.dumps(preprocessing_guideline, indent=2),
-            target_info=json.dumps(target_info, indent=2)
+            target_info=json.dumps(target_info, indent=2),
+            tutorials_section=tutorials_section
         )
 
         if previous_code and error_message:

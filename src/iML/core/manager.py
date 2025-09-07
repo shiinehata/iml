@@ -14,6 +14,7 @@ from ..agents import (
     PreprocessingCoderAgent,
     ModelingCoderAgent,
     AssemblerAgent,
+    TutorialRetrieverAgent,
 )
 from ..llm import ChatLLMFactory
 
@@ -88,6 +89,10 @@ class Manager:
             manager=self,
             llm_config=self.config.assembler,
         )
+        self.tutorial_retriever_agent = TutorialRetrieverAgent(
+            config=config,
+            manager=self,
+        )
 
         self.context = {
             "input_data_folder": input_data_folder,
@@ -145,6 +150,11 @@ class Manager:
         
         self.guideline = guideline
         logger.info("Guideline generated successfully.")
+
+        # Step 3.5: Retrieve relevant tutorials based on analysis results
+        relevant_tutorials = self.tutorial_retriever_agent()
+        self.relevant_tutorials = relevant_tutorials
+        logger.info(f"Tutorial retrieval completed. Found {len(relevant_tutorials)} relevant tutorials.")
 
         # Step 4: Run Preprocessing Coder Agent
         preprocessing_code_result = self.preprocessing_coder_agent()

@@ -40,11 +40,17 @@ class ModelingCoderAgent(BaseAgent):
             logger.error("Preprocessing code not found. Cannot continue.")
             return {"status": "failed", "error": "Preprocessing code not available."}
 
+        # Get tutorials content if available
+        tutorials_content = ""
+        if hasattr(self.manager, 'tutorial_retriever_agent') and hasattr(self.manager, 'relevant_tutorials'):
+            tutorials_content = self.manager.tutorial_retriever_agent.get_tutorials_for_prompt()
+
         # 1. Generate modeling code
         prompt = self.prompt_handler.build(
             guideline=guideline,
             description=description,
             preprocessing_code=preprocessing_code,
+            tutorials_content=tutorials_content
         )
         
         response = self.llm.assistant_chat(prompt)
