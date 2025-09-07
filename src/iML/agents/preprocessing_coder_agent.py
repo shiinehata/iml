@@ -50,12 +50,15 @@ class PreprocessingCoderAgent(BaseAgent):
                 logger.info(f"Retry attempt {attempt + 1}: tutorials disabled, using guidelines only")
 
             # 1. Generate code
+            # Use AI guidelines when tutorials are disabled (-nt flag)
+            use_ai_guidelines = self.manager.no_tutorials
             prompt = self.prompt_handler.build(
                 guideline=guideline,
                 description=description,
                 previous_code=code_to_execute,
                 error_message=error_message,
-                tutorials_content=tutorials_content
+                tutorials_content=tutorials_content,
+                use_ai_guidelines=use_ai_guidelines
             )
 
             response = self.llm.assistant_chat(prompt)

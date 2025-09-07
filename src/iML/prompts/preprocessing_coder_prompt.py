@@ -27,9 +27,6 @@ IMPORTANT: DO NOT CREATE DUMMY DATA.
 ## PREPROCESSING GUIDELINES:
 {preprocessing_guideline}
 
-## TARGET INFO:
-{target_info}
-
 ## RELEVANT TUTORIALS:
 {tutorials_section}
 
@@ -91,11 +88,14 @@ if __name__ == "__main__":
 ````
 """
 
-    def build(self, guideline: Dict, description: Dict, previous_code: str = None, error_message: str = None, tutorials_content: str = "") -> str:
+    def build(self, guideline: Dict, description: Dict, previous_code: str = None, error_message: str = None, tutorials_content: str = "", use_ai_guidelines: bool = False) -> str:
         """Build prompt to generate preprocessing code."""
         
-        preprocessing_guideline = guideline.get('preprocessing', {})
-        target_info = guideline.get("target_identification", {})
+        # Conditionally include preprocessing guidelines based on flags
+        if use_ai_guidelines:
+            preprocessing_guideline = guideline.get('preprocessing', {})
+        else:
+            preprocessing_guideline = "Guidelines disabled - relying on tutorials and general preprocessing best practices."
         
         # Format tutorials section
         if tutorials_content.strip():
@@ -121,8 +121,7 @@ if __name__ == "__main__":
             data_file_desc=json.dumps(description.get('data file description', {})),
             file_paths=description.get('link to the dataset', []),
             file_paths_main=description.get('link to the dataset', []),
-            preprocessing_guideline=json.dumps(preprocessing_guideline, indent=2),
-            target_info=json.dumps(target_info, indent=2),
+            preprocessing_guideline=json.dumps(preprocessing_guideline, indent=2) if isinstance(preprocessing_guideline, dict) else preprocessing_guideline,
             tutorials_section=tutorials_section
         )
 
