@@ -7,7 +7,7 @@ src_path = project_root / "src"
 sys.path.insert(0, str(src_path))
 
 from iML.main_runner import run_automl_pipeline
-
+#flag -nt: turn off tutorial
 def main():
     """
     Main entry point for the application when run from the terminal.
@@ -30,6 +30,16 @@ def main():
         default="configs/default.yaml", 
         help="Path to the configuration file (default: configs/default.yaml)"
     )
+    parser.add_argument(
+        "-nt", "--no-tutorials", 
+        action="store_true",
+        help="Disable tutorial retrieval and rely on AI model suggestions instead"
+    )
+    parser.add_argument(
+        "--enable-ai-suggestions", 
+        action="store_true",
+        help="Enable AI model/library suggestions alongside tutorials (default: tutorials only)"
+    )
     
     args = parser.parse_args()
     
@@ -38,6 +48,8 @@ def main():
         input_data_folder=args.input,
         output_folder=args.output,
         config_path=args.config,
+        no_tutorials=args.no_tutorials,
+        enable_ai_suggestions=args.enable_ai_suggestions,
     )
 
 if __name__ == "__main__":

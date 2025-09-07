@@ -22,7 +22,7 @@ def timeout_handler(signum, frame):
     logger.error("Pipeline execution timed out.")
     raise PipelineTimeoutError("Pipeline execution exceeded the time limit.")
 
-def run_automl_pipeline(input_data_folder: str, output_folder: str = None, config_path: str = "configs/default.yaml"):
+def run_automl_pipeline(input_data_folder: str, output_folder: str = None, config_path: str = "configs/default.yaml", no_tutorials: bool = False, enable_ai_suggestions: bool = False):
     """
     Main function to set up the environment and run the entire pipeline.
     """
@@ -66,6 +66,8 @@ def run_automl_pipeline(input_data_folder: str, output_folder: str = None, confi
             input_data_folder=input_data_folder,
             output_folder=str(output_dir),  # Pass as string for consistency
             config=config,
+            no_tutorials=no_tutorials,
+            enable_ai_suggestions=enable_ai_suggestions,
         )
 
         # 5. Start the pipeline run

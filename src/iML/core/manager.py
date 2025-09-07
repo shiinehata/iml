@@ -31,6 +31,8 @@ class Manager:
         input_data_folder: str,
         output_folder: str,
         config: str,
+        no_tutorials: bool = False,
+        enable_ai_suggestions: bool = False,
     ):
         """Initialize Manager with required paths and config from YAML file.
 
@@ -42,6 +44,8 @@ class Manager:
         self.input_data_folder = input_data_folder
         self.output_folder = output_folder
         self.config = config
+        self.no_tutorials = no_tutorials
+        self.enable_ai_suggestions = enable_ai_suggestions
 
         # Validate paths
         for path, name in [(input_data_folder, "input_data_folder")]:
@@ -138,8 +142,13 @@ class Manager:
             return
         self.profiling_summary = profiling_summary
 
-        # 3b: Retrieve pretrained model/embedding suggestions
-        model_suggestions = self.model_retriever_agent()
+        # 3b: Conditionally retrieve pretrained model/embedding suggestions
+        model_suggestions = None
+        if self.enable_ai_suggestions:
+            model_suggestions = self.model_retriever_agent()
+            logger.info("AI model suggestions enabled and retrieved.")
+        else:
+            logger.info("AI model suggestions disabled - using tutorials only.")
         self.model_suggestions = model_suggestions
 
         # 3c: Run guideline agent with summarized profiling + model suggestions
@@ -151,8 +160,14 @@ class Manager:
         self.guideline = guideline
         logger.info("Guideline generated successfully.")
 
-        # Step 3.5: Retrieve relevant tutorials based on analysis results
-        relevant_tutorials = self.tutorial_retriever_agent()
+        # Step 3.5: Conditionally retrieve relevant tutorials based on analysis results
+        relevant_tutorials = None
+        if not self.no_tutorials:
+            relevant_tutorials = self.tutorial_retriever_agent()
+            logger.info("Tutorial retrieval enabled and completed.")
+        else:
+            logger.info("Tutorial retrieval disabled - relying on AI suggestions.")
+            relevant_tutorials = []
         self.relevant_tutorials = relevant_tutorials
         logger.info(f"Tutorial retrieval completed. Found {len(relevant_tutorials)} relevant tutorials.")
 

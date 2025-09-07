@@ -37,55 +37,62 @@ The following preprocessing code, including a function `preprocess_data(file_pat
 1.  **CRITICAL: USE THE COMPLETE CODE EXAMPLES from the provided tutorials whenever possible.** Copy and adapt the exact model architectures, training loops, and methodologies from the tutorial code blocks.
 2.  **Generate COMPLETE Python code for the modeling part ONLY.** Do NOT repeat the preprocessing code.
 3.  Your code should start with imports EXACTLY as shown in the tutorial code examples whenever possible (e.g., `import tensorflow as tf`, `from tensorflow import keras`).
-4.  Define a function `train_and_predict(X_train, y_train, X_test)`.
+4.  **CRITICAL: Adapt your function signature to match the data format returned by preprocess_data()** - this could be generators, datasets, or arrays depending on the tutorial approach.
 5.  Keep the data loading code of the preprocessing code.
 6.  The main execution block (`if __name__ == "__main__":`) must:
-    a. Call the existing `preprocess_data()` function to get the datasets.
-    b. Call your `train_and_predict()` function.
+    a. Call the existing `preprocess_data()` function to get the datasets in the format specified by preprocessing.
+    b. Call your training and prediction function with the appropriate data format.
     c. Save the predictions to a `submission.csv` file. The format should typically be two columns: an identifier column and the prediction column.
 7.  **Critical Error Handling**: The main execution block MUST be wrapped in a `try...except` block. If ANY exception occurs, the script MUST print the error to stderr and **exit with a non-zero status code** (`sys.exit(1)`).
-8.  **Follow the modeling guidelines AND replicate the tutorial code structure for algorithm choice.**
-9.  **MANDATORY: Use the SAME model architectures, training approaches, and code patterns demonstrated in the tutorials whenever possible**
+8.  **STRONGLY ENCOURAGED: Follow tutorial code structure for algorithm choice when available. Tutorials provide proven approaches for your task type.**
+9.  **ENCOURAGED: Use the SAME model architectures, training approaches, and code patterns demonstrated in the tutorials when they match your data format and task requirements.**
 10. Do not use extensive hyperparameter tuning unless specified. Keep the code efficient.
 11. Limit comments in the code.
 12. The submission file must have the same structure (number of columns) as the sample submission file provided in the dataset, but may have different ID. You have to use the test data to generate predictions and your right submission file. In some cases, you must browse the test image folder to get the IDs and data.
 13. Your final COMPLETE Python code should have only ONE main function. If there are duplicate main function, remove the duplicates and keep only one main function.
 14. Sample submission file given is for template reference (Columns) only. You have to use the test data or test file to generate predictions and your right submission file. In some cases, you must browse the test image folder to get the IDs and data.
-15. **ABSOLUTE REQUIREMENT: When tutorials provide COMPLETE CODE EXAMPLES, you SHOULD use those exact model structures, training patterns, and approaches whenever possible. Do NOT deviate from the tutorial code unless absolutely necessary.**
+15. **ENCOURAGED: When tutorials provide COMPLETE CODE EXAMPLES that match your data format, prioritize using those exact model structures, training patterns, and approaches. Adapt as needed for your specific data format.**
 
 
-## CODE STRUCTURE EXAMPLE:
+## IMPORTANT: 
+- **EXAMINE the preprocessing code carefully** to understand the data format it returns (arrays, generators, tf.data.Dataset, etc.)
+- **ADAPT your modeling code** to work with that specific data format
+- **FOLLOW tutorial patterns** when they are compatible with your data format
+- **If tutorials use a different data format**, adapt the tutorial approach to work with your preprocessing output
+
+## CODE STRUCTURE GUIDELINES:
 ```python
-# Your modeling code starts here
-import pandas as pd
-from sklearn.ensemble import RandomForestClassifier
+# Adapt this structure based on your actual preprocessing output format
+# Example for array-based data (adapt as needed):
+
 import sys
 import os
+# Import libraries that match your tutorial examples and data format
 
 {preprocessing_code}
 
-def train_and_predict(X_train, y_train, X_test):
-    # Your modeling, training, and prediction logic here
-    model = RandomForestClassifier(random_state=42)
-    model.fit(X_train, y_train)
-    predictions = model.predict(X_test)
-    return predictions
+def train_and_predict(data_input):
+    # Adapt function signature and logic based on preprocessing output format
+    # Use tutorial model architectures when compatible
+    # Return predictions in appropriate format
+    pass
 
 if __name__ == "__main__":
     try:
-        # These file paths will be available in the execution environment
         file_paths = {file_paths_main}
         
-        # 1. Preprocess data using the provided function
-        # The number of returned elements must match the preprocess_data function
-        X_train, X_test, y_train, y_test, test_ids = preprocess_data(file_paths)
-
-        # 2. Train model and get predictions
-        predictions = train_and_predict(X_train, y_train, X_test)
-
-        # 3. Create submission file
-        submission_df = pd.DataFrame({{'test_id_column_name': test_ids, 'prediction_column_name': predictions}})
-        submission_df.to_csv("submission.csv", index=False)
+        # 1. Get data from preprocessing (format depends on preprocessing implementation)
+        data_output = preprocess_data(file_paths)
+        
+        # 2. Adapt to the actual format returned by preprocess_data
+        # This could be: arrays, generators, tf.data.Dataset, etc.
+        
+        # 3. Train and predict using compatible approach
+        predictions = train_and_predict(data_output)
+        
+        # 4. Create submission file with appropriate format
+        # submission_df = pd.DataFrame(...) 
+        # submission_df.to_csv("submission.csv", index=False)
 
         print("Modeling script executed successfully and submission.csv created!")
 
@@ -102,19 +109,19 @@ if __name__ == "__main__":
         
         # Format tutorials section
         if tutorials_content.strip():
-            tutorials_section = f"""The following tutorials provide COMPLETE CODE EXAMPLES and best practices that you MUST prioritize for your task:
+            tutorials_section = f"""The following tutorials provide COMPLETE CODE EXAMPLES and proven approaches for your task type:
 
 {tutorials_content}
 
-**CRITICAL REQUIREMENTS:**
-1. **USE THE COMPLETE CODE EXAMPLES** provided above as your primary reference for model architecture and training
-2. **COPY AND ADAPT** the exact import patterns, model building, and training approaches shown
-3. **FOLLOW THE SAME CODING STRUCTURE** and patterns demonstrated in the code examples
-4. **PRIORITIZE the libraries and methods** explicitly used in the tutorial code blocks
-5. Do NOT use alternative libraries unless the tutorials explicitly don't cover your use case
-6. **The tutorial code examples above contain the EXACT methods you should use** - adapt them to your specific dataset and modeling task"""
+**TUTORIAL GUIDANCE (STRONGLY ENCOURAGED):**
+1. **EXAMINE the tutorial code examples** above for proven model architectures and training approaches compatible with your task
+2. **ADAPT tutorial patterns** to work with your specific data format (as returned by preprocess_data)
+3. **PRIORITIZE tutorial libraries and methods** when they are compatible with your preprocessing output format
+4. **USE tutorial coding structures** as a foundation and modify as needed for your data format
+5. **LEVERAGE tutorial insights** for model selection, training strategies, and best practices
+6. If tutorial data format differs from your preprocessing output, adapt the tutorial approach to your format"""
         else:
-            tutorials_section = "No specific tutorials found for this task type. Use TensorFlow/Keras ecosystem and general machine learning best practices."
+            tutorials_section = "No specific tutorials found for this task type. Use appropriate ML frameworks and general machine learning best practices based on your data format."
 
         prompt = self.template.format(
             dataset_name=description.get('name', 'N/A'),
