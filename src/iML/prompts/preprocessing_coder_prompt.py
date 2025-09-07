@@ -34,22 +34,22 @@ IMPORTANT: DO NOT CREATE DUMMY DATA.
 {tutorials_section}
 
 ## REQUIREMENTS:
-1. **CRITICAL: Prioritize libraries and methods from the provided tutorials.** Use TensorFlow/Keras ecosystem whenever possible.
+1. **CRITICAL: Prioritize libraries and methods from the provided tutorials.** Use libraries and method from or similar to the tutorials whenever possible.
 2. Generate COMPLETE, EXECUTABLE Python code.
-3. **Include all necessary imports, prioritizing TensorFlow/Keras** (e.g., `import tensorflow as tf`, `from tensorflow import keras`, `tf.data`, `tf.keras.utils`).
+3. **Include all necessary imports, similar to the tutorials whenever possible** (e.g., `import tensorflow as tf`, `from tensorflow import keras`, `tf.data`, `tf.keras.utils`).
 4. Handle file loading exactly as the provided paths, DO NOT CREATE DUMMY DATA FILES.
-5. **Follow the preprocessing guidelines AND the tutorial examples exactly.**
+5. **Follow the preprocessing guidelines AND the tutorial examples exactly whenever possible.**
 6. Create a function `preprocess_data()` that takes a dictionary of file paths and returns a tuple of **generators**, one for each data split (e.g., train_generator, val_generator, test_generator).
-7. **Use the same data loading and preprocessing approaches demonstrated in the tutorials.**
+7. **Use the same data loading and preprocessing approaches demonstrated in the tutorials whenever possible.**
 8. Include basic error handling and data validation within the function.
 9. Limit comments in the code.
 10. Preprocess both the train and test data consistently.
 11. IMPORTANT: The main execution block (`if __name__ == "__main__":`) should test the function with the actual file paths.
 12. **Critical Error Handling**: The main execution block MUST be wrapped in a `try...except` block. If ANY exception occurs, the script MUST print the error and then **exit with a non-zero status code** using `sys.exit(1)`.
-13. DO NOT USE NLTK
+13. DO NOT USE NLTK even if the tutorial uses it.
 14. Sample submission file given is for template reference (Columns) only. You have to use the test data or test file to generate predictions and your right submission file. In some cases, you must browse the test image folder to get the IDs and data.
 15. The provided file paths are the only valid paths to load the data. Do not create any dummy data files.
-16. **IMPORTANT: When tutorials are provided, follow their import patterns, data loading utilities, and preprocessing styles closely.**
+16. **IMPORTANT: When tutorials are provided, follow their import patterns, data loading utilities, and preprocessing styles closely whenever possible.**
 
 ## CODE STRUCTURE:
 ```python
