@@ -1,6 +1,6 @@
 # src/iML/prompts/guideline_prompt.py
 import json
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any
 
 from .base_prompt import BasePrompt
 
@@ -39,18 +39,8 @@ class GuidelinePrompt(BasePrompt):
 {variables_summary_str}
 ```
 
-## Search SOTA results (from Google ADK retrieval)
-If provided, you MUST leverage these models and their example codes in your modeling recommendations.
-Requirements when SOTA results are present:
-- Choose exactly one most suitable model from the list.
-- Reflect the choice under "modeling.model_selection" (a JSON list of strings containing the chosen model name).
-- Provide both fields under "modeling.sota_model": {{"model_name": string, "example_code": string with runnable Python}}.
-```json
-{sota_results_str}
-```
-
 ## Guideline Generation Principles & Examples
-Your response must be guided by the following principles. Refer to these examples to understand the required level of detail. Favor performance-first design (SOTA models, strong embeddings, GPU-friendly choices) unless data constraints clearly forbid it.
+Your response must be guided by the following principles. Refer to these examples to understand the required level of detail.
 
 BE SPECIFIC AND ACTIONABLE: Your recommendations must be concrete actions.
 - Bad (Generic): "Handle missing values"
@@ -74,9 +64,14 @@ For a numeric column 'income' with 25% missing values and a skewed distribution,
 Before generating the final JSON, consider:
 1. Identify the target variable and task type (classification, regression, etc.).
 2. Review each variable's type, statistics, and potential issues.
-3. Choose the most appropriate modeling algorithms; prefer SOTA/backbone variants and configs within reasonable memory for better accuracy.
-4. If using pretrained models, choose strong ones and reflect them under both model_selection and sota_model with example_code.
+3. Choose the most appropriate modeling algorithms, then choose appropriate and reasonable preprocessing steps for that modeling algorithm.
+4. If using pretrained models, choose the most appropriate ones.
 5. Compile these specific actions into the required JSON format.
+
+## Pretrained Models & Embedding Options (from Hugging Face):
+```json
+{model_suggestions_str}
+```
 
 Output Format: Your response must be in the JSON format below:
 Provide your response in JSON format. An empty list or null is acceptable for recommendations if not applicable.
@@ -95,12 +90,8 @@ IMPORTANT: Ensure the generated JSON is perfectly valid.
     }},
     "modeling": {{
         "recommended_algorithms": ["one most suitable algorithm"],
-        "model_selection": ["model_name1"],
-        "sota_model": {{
-            "model_name": "chosen model name",
-            "example_code": "runnable Python code that demonstrates training/inference or usage"
-        }},
-        "cross_validation": {{"method": "kfold/holdout/etc", "scoring": "appropriate metric"}}
+        "model_selection": ["model_name1"](pretrained model name if using pretrained model),
+        "cross_validation": {{"method": appropriate method, "scoring": appropriate metric}}
     }},
     "preprocessing": {{
         "data_cleaning": ["specific step 1", "specific step 2"],
@@ -117,7 +108,7 @@ IMPORTANT: Ensure the generated JSON is perfectly valid.
     }}
 }}"""
 
-    def build(self, description_analysis: Dict[str, Any], profiling_result: Dict[str, Any], retrieved_models: Optional[List[Dict[str, Any]]] = None) -> str:
+    def build(self, description_analysis: Dict[str, Any], profiling_result: Dict[str, Any], model_suggestions: Dict[str, Any] | None = None) -> str:
         """Build prompt from analysis and profiling results.
 
         Supports two formats:
@@ -201,7 +192,7 @@ IMPORTANT: Ensure the generated JSON is perfectly valid.
             variables_summary_dict = _create_variables_summary(variables)
 
         variables_summary_str = json.dumps(variables_summary_dict, indent=2, ensure_ascii=False)
-        sota_results_str = json.dumps(retrieved_models or [], indent=2, ensure_ascii=False)
+        model_suggestions_str = json.dumps(model_suggestions or {}, indent=2, ensure_ascii=False)
 
         prompt = self.template.format(
             dataset_name=dataset_name,
@@ -211,7 +202,7 @@ IMPORTANT: Ensure the generated JSON is perfectly valid.
             alerts=alerts_out if alerts_out else 'None',
             variables_summary_str=variables_summary_str,
             output_data=output_data,
-            sota_results_str=sota_results_str,
+            model_suggestions_str=model_suggestions_str
         )
         
         self.manager.save_and_log_states(prompt, "guideline_prompt.txt")

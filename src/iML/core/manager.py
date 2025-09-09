@@ -2,8 +2,6 @@ import logging
 import os
 import uuid
 import subprocess
-import asyncio
-import json
 from pathlib import Path
 from typing import List
 
@@ -11,6 +9,7 @@ from ..agents import (
     DescriptionAnalyzerAgent,
     ProfilingAgent,
     ProfilingSummarizerAgent,
+    ModelRetrieverAgent,
     GuidelineAgent,
     PreprocessingCoderAgent,
     ModelingCoderAgent,
@@ -42,7 +41,6 @@ class Manager:
         self.input_data_folder = input_data_folder
         self.output_folder = output_folder
         self.config = config
-        self.state = {}
 
         # Validate paths
         for path, name in [(input_data_folder, "input_data_folder")]:
@@ -66,7 +64,10 @@ class Manager:
             manager=self,
             llm_config=self.config.profiling_summarizer,
         )
-        # ModelRetrieverAgent removed per request
+        self.model_retriever_agent = ModelRetrieverAgent(
+            config=config,
+            manager=self,
+        )
         self.guideline_agent = GuidelineAgent(
             config=config,
             manager=self,
@@ -91,6 +92,7 @@ class Manager:
         self.context = {
             "input_data_folder": input_data_folder,
             "output_folder": output_folder,
+            
         }
 
     def run_pipeline_new(self):
@@ -131,25 +133,11 @@ class Manager:
             return
         self.profiling_summary = profiling_summary
 
-        # 3b: Run Search SOTA retrieval (Google ADK) and store results in state
-        try:
-            task_summary = f"Dataset: {self.description_analysis.get('name','N/A')}\nTask: {self.description_analysis.get('task','N/A')}\nOutput: {self.description_analysis.get('output_data','N/A')}"
-            retrieved = self._run_sota_retrieval(task_summary=task_summary, k=3)
-            if retrieved is not None:
-                # retrieved is a list (single-element array per emitter); ensure list of dicts
-                self.state["retrieved_models"] = retrieved
-                self.state["init_model_finish"] = True
-                # also expose on manager for downstream use
-                self.retrieved_models = retrieved
-                # save artifact
-                try:
-                    self.save_and_log_states(json.dumps(retrieved, ensure_ascii=False, indent=2), "sota_retrieved_models.json")
-                except Exception:
-                    pass
-        except Exception as e:
-            logger.warning(f"Search SOTA retrieval step failed or skipped: {e}")
+        # 3b: Retrieve pretrained model/embedding suggestions
+        model_suggestions = self.model_retriever_agent()
+        self.model_suggestions = model_suggestions
 
-        # 3c: Run guideline agent with summarized profiling and SOTA results
+        # 3c: Run guideline agent with summarized profiling + model suggestions
         guideline = self.guideline_agent()
         if "error" in guideline:
             logger.error(f"Guideline generation failed: {guideline['error']}")
@@ -186,105 +174,6 @@ class Manager:
         logger.info(f"Initial script generated and executed successfully.")
 
         logger.info("AutoML pipeline completed successfully!")
-
-    def _run_sota_retrieval(self, task_summary: str, k: int = 3):
-        """Run the ADK Search SOTA root agent and return the emitted JSON as Python list.
-
-        Returns a list with a single dict item on success, or None on failure.
-        """
-        try:
-            from iML.tools.adk_search_sota import make_search_sota_root_agent
-            from google.adk.runners import InMemoryRunner
-            from google.genai import types as gen_types
-        except Exception as e:
-            logger.warning(f"ADK dependencies not available: {e}")
-            return None
-
-        async def _do_run():
-            root_agent = make_search_sota_root_agent(task_summary=task_summary, k=k)
-            runner = InMemoryRunner(agent=root_agent, app_name="sota-search")
-            diag = {
-                "app_name": getattr(runner, "app_name", "sota-search"),
-                "has_session_service": hasattr(runner, "session_service"),
-                "created_session": False,
-                "run_signature": None,
-                "error": None,
-                "last_text_len": 0,
-            }
-            # Create session if supported
-            session = None
-            try:
-                if hasattr(runner, "session_service") and hasattr(runner.session_service, "create_session"):
-                    session = await runner.session_service.create_session(app_name=diag["app_name"], user_id="pipeline")
-                elif hasattr(runner, "create_session"):
-                    try:
-                        session = await runner.create_session(app_name=diag["app_name"], user_id="pipeline")
-                    except TypeError:
-                        session = await runner.create_session(user_id="pipeline")
-            except Exception as e:
-                diag["error"] = f"session_create: {e}"
-            if session is not None:
-                diag["created_session"] = True
-
-            # Normalize IDs
-            user_id = None
-            session_id = None
-            if session is not None:
-                user_id = getattr(session, "user_id", None) or getattr(session, "userId", None)
-                session_id = getattr(session, "id", None) or getattr(session, "session_id", None)
-
-            user_msg = gen_types.Content(parts=[gen_types.Part(text="run")], role="user")
-            last_text = None
-            texts = []
-
-            try:
-                if user_id and session_id:
-                    diag["run_signature"] = "run_async_with_session"
-                    async for event in runner.run_async(user_id=user_id, session_id=session_id, new_message=user_msg):
-                        if event.content and event.content.parts:
-                            for part in event.content.parts:
-                                if getattr(part, "text", None):
-                                    texts.append(part.text)
-                                    last_text = part.text
-                else:
-                    # Fallback to signature without session
-                    diag["run_signature"] = "run_async_no_session"
-                    async for event in runner.run_async(new_message=user_msg):
-                        if event.content and event.content.parts:
-                            for part in event.content.parts:
-                                if getattr(part, "text", None):
-                                    texts.append(part.text)
-                                    last_text = part.text
-            except Exception as e:
-                diag["error"] = f"run_async: {e}"
-
-            diag["last_text_len"] = len(last_text or "")
-            # Persist raw outputs
-            try:
-                if texts:
-                    self.save_and_log_states("\n\n---\n\n".join(texts), "sota_retrieval_raw_stream.txt")
-                if last_text is not None:
-                    self.save_and_log_states(last_text, "sota_retrieval_raw_emit.txt")
-            except Exception:
-                pass
-            # Persist diagnostics
-            try:
-                self.save_and_log_states(json.dumps(diag, ensure_ascii=False, indent=2), "sota_retrieval_debug.json")
-            except Exception:
-                pass
-            return last_text
-
-        # Run the async routine
-        emitted = asyncio.run(_do_run())
-        if not emitted:
-            return None
-        try:
-            data = json.loads(emitted)
-            if isinstance(data, list) and data and isinstance(data[0], dict):
-                return data
-        except Exception:
-            pass
-        return None
 
     def write_code_script(self, script, output_code_file):
         with open(output_code_file, "w") as file:
