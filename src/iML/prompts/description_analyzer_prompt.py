@@ -9,6 +9,7 @@ class DescriptionAnalyzerPrompt(BasePrompt):
     def default_template(self) -> str:
         return """
 You are an expert AI assistant specializing in analyzing Kaggle competition descriptions. Your task is to read the provided text and extract key information into a specific JSON structure.
+Assume the downstream system prioritizes high performance over lightweight setups (SOTA models, strong embeddings, GPU usage when available). Be complete and precise; capture details that help choose high-capacity models and robust training.
 The output MUST be a valid JSON object and nothing else. Do not include any explanatory text before or after the JSON.
 Extract the following information:
 - "name": Dataset name

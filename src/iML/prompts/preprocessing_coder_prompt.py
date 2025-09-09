@@ -12,7 +12,7 @@ class PreprocessingCoderPrompt(BasePrompt):
     def default_template(self) -> str:
         """Default template to request LLM to generate code."""
         return """
-You are a professional Machine Learning Engineer.
+You are a professional Machine Learning Engineer focused on performance first.
 Generate complete and executable Python preprocessing code for the dataset below.
 IMPORTANT: Preprocess data by batch using generators to reduce memory usage.
 IMPORTANT: DO NOT CREATE DUMMY DATA.
@@ -30,7 +30,7 @@ IMPORTANT: DO NOT CREATE DUMMY DATA.
 ## TARGET INFO:
 {target_info}
 
-## REQUIREMENTS:
+## REQUIREMENTS (Performance-first):
 1. Generate COMPLETE, EXECUTABLE Python code.
 2. Include all necessary imports (pandas, scikit-learn, numpy, etc.).
 3. Handle file loading exactly as the provided paths, DO NOT CREATE DUMMY DATA FILES.
@@ -44,6 +44,7 @@ IMPORTANT: DO NOT CREATE DUMMY DATA.
 11. DO NOT USE NLTK
 12. Sample submission file given is for template reference (Columns) only. You have to use the test data or test file to generate predictions and your right submission file. In some cases, you must browse the test image folder to get the IDs and data.
 13. The provided file paths are the only valid paths to load the data. Do not create any dummy data files.
+14. Prefer GPU-amenable preprocessing when applicable (e.g., torch/tensor ops for image/text pipelines) and use efficient vectorization. Detect CUDA availability (torch.cuda.is_available()) and leverage it safely when present without breaking CPU-only runs.
 
 ## CODE STRUCTURE:
 ```python

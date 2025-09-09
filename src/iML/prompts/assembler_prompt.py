@@ -13,10 +13,7 @@ class AssemblerPrompt(BasePrompt):
         """Default template to request LLM to rewrite and fix code."""
         return """
 You are a senior ML engineer finalizing a project. You have been given a Python script that combines preprocessing and modeling.
-Your task is to ensure the script is clean, robust, and correct.
-
-## CONTEXT
-
+Your task is to ensure the script is clean, robust, correct, and maintains performance-first choices (e.g., GPU usage when available, high-capacity models if selected by guidelines).
 
 ## REQUIREMENTS:
 1.  **Final Script**: The output must be a single, standalone, executable Python file and it should be run on the real data.
@@ -24,16 +21,19 @@ Your task is to ensure the script is clean, robust, and correct.
 3.  **Absolute Output Path**: The script MUST save `submission.csv` to the following absolute path: `{output_path}`.
 4.  **Error Handling**: Maintain the `try...except` block for robust execution.
 5.  **Clarity**: Ensure the final script is clean and well-structured.
+5.1 **Performance**: Preserve and, if safe, enhance GPU utilization and high-performance configs without changing the intended algorithmic choices.
 6.  **Sample Submission File**: Sample submission file given is for template reference (Columns) only. You have to use the test data or test file to generate predictions and your right submission file. In some cases, you must browse the test image folder to get the IDs and data.
 7.  **Do not add any other code.**
+
+{retry_context}
+
+## INSTRUCTIONS:
+Based on the context above, generate the complete and corrected Python code. The output should be ONLY the final Python code.
 
 ## ORIGINAL CODE:
 ```python
 {original_code}
 ```
-{retry_context}
-## INSTRUCTIONS:
-Based on the context above, generate the complete and corrected Python code. The output should be ONLY the final Python code.
 
 ## FINAL, CORRECTED CODE:
 """
