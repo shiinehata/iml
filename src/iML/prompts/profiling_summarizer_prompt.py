@@ -12,6 +12,7 @@ class ProfilingSummarizerPrompt(BasePrompt):
             """
 You are a senior ML data analyst. Read the dataset description and the RAW profiling result below.
 Your job is to produce a COMPACT, ACTIONABLE JSON summary for downstream preprocessing and modeling.
+Assume downstream will favor high-performance settings (SOTA models, strong embeddings), and can use GPU when available. Provide concise signals that support those choices (e.g., text length, vocabulary size hints, image resolution ranges, tabular numeric/categorical ratios).
 
 Focus on clear, minimal signals. Avoid dumping large structures. Do not include extraneous detail.
 

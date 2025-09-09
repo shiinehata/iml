@@ -12,7 +12,7 @@ class ModelingCoderPrompt(BasePrompt):
     def default_template(self) -> str:
         """Default template to request LLM to generate modeling code."""
         return """
-You are an expert ML engineer. Your task is to generate Python code for modeling, which will be combined with the provided preprocessing code.
+You are an expert ML engineer prioritizing accuracy and throughput over lightweight setups. Your task is to generate Python code for modeling, which will be combined with the provided preprocessing code.
 
 ## CONTEXT
 - **Dataset Name**: {dataset_name}
@@ -30,7 +30,7 @@ The following preprocessing code, including a function `preprocess_data(file_pat
 {preprocessing_code}
 ```
 
-## REQUIREMENTS:
+## REQUIREMENTS (Performance-first):
 1.  **Generate COMPLETE Python code for the modeling part ONLY.** Do NOT repeat the preprocessing code.
 2.  Your code should start with necessary imports for modeling (e.g., `import pandas as pd`, `from sklearn.ensemble import RandomForestClassifier`).
 3.  Define a function `train_and_predict(X_train, y_train, X_test)`.
@@ -40,12 +40,13 @@ The following preprocessing code, including a function `preprocess_data(file_pat
     b. Call your `train_and_predict()` function.
     c. Save the predictions to a `submission.csv` file. The format should typically be two columns: an identifier column and the prediction column.
 6.  **Critical Error Handling**: The main execution block MUST be wrapped in a `try...except` block. If ANY exception occurs, the script MUST print the error to stderr and **exit with a non-zero status code** (`sys.exit(1)`).
-7.  Follow the modeling guidelines for algorithm choice.
-8.  Do not use extensive hyperparameter tuning unless specified. Keep the code efficient.
+7.  Follow the modeling guidelines for algorithm choice. When a SOTA/pretrained model is specified, use it with strong defaults (e.g., larger backbones, higher-capacity configs) within reasonable memory limits.
+8.  Prefer GPU when available. Detect CUDA and move tensors/models to GPU. Use mixed precision (torch.cuda.amp) for deep models when reasonable.
 9.  Limit comments in the code.
 10. The submission file must have the same structure (number of columns) as the sample submission file provided in the dataset, but may have different ID. You have to use the test data to generate predictions and your right submission file. In some cases, you must browse the test image folder to get the IDs and data.
 11. Your final COMPLETE Python code should have only ONE main function. If there are duplicate main function, remove the duplicates and keep only one main function.
 12. Sample submission file given is for template reference (Columns) only. You have to use the test data or test file to generate predictions and your right submission file. In some cases, you must browse the test image folder to get the IDs and data.
+13. If the guideline includes `modeling.sota_model` or strong embeddings are implied, integrate them directly and configure with sensible, high-performance defaults.
 
 
 ## CODE STRUCTURE EXAMPLE:
