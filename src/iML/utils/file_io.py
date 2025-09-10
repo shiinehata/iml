@@ -97,7 +97,8 @@ def get_directory_structure(
         raise ValueError(f"'{root_dir}' is not a valid directory.")
 
     # --- Part 1: Build the directory tree ---
-    tree_lines: List[str] = [f"{root_path.name}/"]
+    # Do not print the parent/root folder name; start directly with its children
+    tree_lines: List[str] = []
     csv_paths: List[Path] = []
     
     # Call the recursive helper with the new conditional logic

@@ -4,3 +4,6 @@ runs
 venv/
 runs/
 command.txt
+cache
+mle-bench
+linhtinh.ipynb
