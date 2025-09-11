@@ -39,6 +39,14 @@ class GuidelinePrompt(BasePrompt):
 {variables_summary_str}
 ```
 
+## Files Detected (from profiling):
+```json
+{files_summary_str}
+```
+
+## Directory Structure (read-only context):
+{directory_structure}
+
 ## Guideline Generation Principles & Examples
 Your response must be guided by the following principles. Refer to these examples to understand the required level of detail.
 
@@ -64,11 +72,11 @@ For a numeric column 'income' with 25% missing values and a skewed distribution,
 Before generating the final JSON, consider:
 1. Identify the target variable and task type (classification, regression, etc.).
 2. Review each variable's type, statistics, and potential issues.
-3. Choose the most appropriate modeling algorithms, then choose appropriate and reasonable preprocessing steps for that modeling algorithm.
+3. Select the most appropriate model from the SOTA candidates (provided below), include its exact "example_code" in the JSON output, then choose appropriate and reasonable preprocessing steps for that chosen model.
 4. If using pretrained models, choose the most appropriate ones.
 5. Compile these specific actions into the required JSON format.
 
-## Pretrained Models & Embedding Options (from Hugging Face):
+## Model candidates (from SOTA search):
 ```json
 {model_suggestions_str}
 ```
@@ -89,9 +97,11 @@ IMPORTANT: Ensure the generated JSON is perfectly valid.
         "task_type": "classification/regression/etc"
     }},
     "modeling": {{
-        "recommended_algorithms": ["one most suitable algorithm"],
-        "model_selection": ["model_name1"](pretrained model name if using pretrained model),
-        "cross_validation": {{"method": appropriate method, "scoring": appropriate metric}}
+        "selected_sota_model": {{
+            "model_name": "name from SOTA candidates",
+            "example_code": "paste the example_code string from the chosen SOTA item"
+        }},
+        "cross_validation": {{"method": "appropriate method", "scoring": "appropriate metric"}}
     }},
     "preprocessing": {{
         "data_cleaning": ["specific step 1", "specific step 2"],
@@ -108,7 +118,7 @@ IMPORTANT: Ensure the generated JSON is perfectly valid.
     }}
 }}"""
 
-    def build(self, description_analysis: Dict[str, Any], profiling_result: Dict[str, Any], model_suggestions: Dict[str, Any] | None = None) -> str:
+    def build(self, description_analysis: Dict[str, Any], profiling_result: Dict[str, Any], model_suggestions: Dict[str, Any] | None = None, directory_structure: str | None = None) -> str:
         """Build prompt from analysis and profiling results.
 
         Supports two formats:
@@ -193,6 +203,8 @@ IMPORTANT: Ensure the generated JSON is perfectly valid.
 
         variables_summary_str = json.dumps(variables_summary_dict, indent=2, ensure_ascii=False)
         model_suggestions_str = json.dumps(model_suggestions or {}, indent=2, ensure_ascii=False)
+        files_summary_list = profiling_result.get('files', []) or []
+        files_summary_str = json.dumps(files_summary_list, indent=2, ensure_ascii=False)
 
         prompt = self.template.format(
             dataset_name=dataset_name,
@@ -202,7 +214,9 @@ IMPORTANT: Ensure the generated JSON is perfectly valid.
             alerts=alerts_out if alerts_out else 'None',
             variables_summary_str=variables_summary_str,
             output_data=output_data,
-            model_suggestions_str=model_suggestions_str
+            model_suggestions_str=model_suggestions_str,
+            files_summary_str=files_summary_str,
+            directory_structure=directory_structure or ""
         )
         
         self.manager.save_and_log_states(prompt, "guideline_prompt.txt")

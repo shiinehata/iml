@@ -5,6 +5,7 @@ from typing import Dict, Any
 from .base_agent import BaseAgent
 from ..prompts import ModelingCoderPrompt
 from .utils import init_llm
+from ..utils.file_io import get_directory_structure
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +46,8 @@ class ModelingCoderAgent(BaseAgent):
             guideline=guideline,
             description=description,
             preprocessing_code=preprocessing_code,
+            profiling_result=getattr(self.manager, "profiling_summary", None) or getattr(self.manager, "profiling_result", None),
+            directory_structure=get_directory_structure(self.manager.input_data_folder),
         )
         
         response = self.llm.assistant_chat(prompt)

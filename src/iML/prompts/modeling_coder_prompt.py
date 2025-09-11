@@ -21,6 +21,14 @@ You are an expert ML engineer. Your task is to generate Python code for modeling
 - **Data File Description**: {data_file_description}
 - **Output data format**: {output_data_format}
 
+### Files Detected (from profiling)
+```json
+{files_summary_str}
+```
+
+### Directory Structure (read-only)
+{directory_structure}
+
 ## MODELING GUIDELINES:
 {modeling_guideline}
 
@@ -89,10 +97,12 @@ if __name__ == "__main__":
 ```
 """
 
-    def build(self, guideline: Dict, description: Dict, preprocessing_code: str, previous_code: str = None, error_message: str = None) -> str:
+    def build(self, guideline: Dict, description: Dict, preprocessing_code: str, previous_code: str = None, error_message: str = None, profiling_result: Dict[str, Any] | None = None, directory_structure: str | None = None) -> str:
         """Build prompt to generate modeling code."""
         
         modeling_guideline = guideline.get('modeling', {})
+        files_summary_list = (profiling_result or {}).get('files', []) if profiling_result else []
+        files_summary_str = json.dumps(files_summary_list, indent=2, ensure_ascii=False)
 
         prompt = self.template.format(
             dataset_name=description.get('name', 'N/A'),
@@ -102,7 +112,9 @@ if __name__ == "__main__":
             data_file_description=description.get('data file description', 'N/A'),
             output_data_format=description.get('output_data', 'N/A'),
             modeling_guideline=json.dumps(modeling_guideline, indent=2),
-            preprocessing_code=preprocessing_code
+            preprocessing_code=preprocessing_code,
+            files_summary_str=files_summary_str,
+            directory_structure=directory_structure or ""
         )
 
         if previous_code and error_message:

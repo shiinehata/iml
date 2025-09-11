@@ -5,6 +5,7 @@ from typing import Dict, Any
 from .base_agent import BaseAgent
 from ..prompts.guideline_prompt import GuidelinePrompt
 from .utils import init_llm
+from ..utils.file_io import get_directory_structure
 
 logger = logging.getLogger(__name__)
 
@@ -55,10 +56,13 @@ class GuidelineAgent(BaseAgent):
 
         # Build prompt with model suggestions if available
         model_suggestions = getattr(self.manager, "model_suggestions", None)
+        # Prepare directory structure context
+        directory_structure = get_directory_structure(self.manager.input_data_folder)
         prompt = self.prompt_handler.build(
             description_analysis=description_analysis,
             profiling_result=profiling_result,
             model_suggestions=model_suggestions,
+            directory_structure=directory_structure,
         )
 
         # Call LLM

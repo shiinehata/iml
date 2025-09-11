@@ -4,6 +4,7 @@ from typing import Dict, Any
 from .base_agent import BaseAgent
 from ..prompts import PreprocessingCoderPrompt
 from .utils import init_llm
+from ..utils.file_io import get_directory_structure
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +47,9 @@ class PreprocessingCoderAgent(BaseAgent):
                 guideline=guideline,
                 description=description,
                 previous_code=code_to_execute,
-                error_message=error_message
+                error_message=error_message,
+                profiling_result=getattr(self.manager, "profiling_summary", None) or getattr(self.manager, "profiling_result", None),
+                directory_structure=get_directory_structure(self.manager.input_data_folder),
             )
 
             response = self.llm.assistant_chat(prompt)

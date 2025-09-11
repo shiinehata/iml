@@ -16,6 +16,17 @@ You are a senior ML engineer finalizing a project. You have been given a Python 
 Your task is to ensure the script is clean, robust, and correct.
 
 ## CONTEXT
+Dataset: {dataset_name}
+File Paths: {file_paths}
+Output format: {output_data_format}
+
+### Files Detected (from profiling)
+```json
+{files_summary_str}
+```
+
+### Directory Structure (read-only)
+{directory_structure}
 
 
 ## REQUIREMENTS:
@@ -38,7 +49,7 @@ Based on the context above, generate the complete and corrected Python code. The
 ## FINAL, CORRECTED CODE:
 """
 
-    def build(self, original_code: str, output_path: str, description: Dict, error_message: str = None) -> str:
+    def build(self, original_code: str, output_path: str, description: Dict, error_message: str = None, profiling_result: Dict[str, Any] | None = None, directory_structure: str | None = None) -> str:
         """Build prompt to assemble or fix code."""
         
         retry_context = ""
@@ -59,13 +70,18 @@ The code above failed with the following error.
 4.  If the error indicates a missing module (ModuleNotFoundError/ImportError), modify the final script to wrap critical imports in try/except and, in the except, call subprocess to install the missing package (e.g., `[sys.executable, '-m', 'pip', 'install', '<package>']` with `check=True`), then attempt the import again before proceeding.
 """
         
+        files_summary_list = (profiling_result or {}).get('files', []) if profiling_result else []
+        files_summary_str = json.dumps(files_summary_list, indent=2, ensure_ascii=False)
+
         prompt = self.template.format(
             dataset_name=description.get('name', 'N/A'),
             file_paths=description.get('link to the dataset', []),
             output_data_format=description.get('output_data', 'N/A'),
             original_code=original_code,
             output_path=output_path,
-            retry_context=retry_context
+            retry_context=retry_context,
+            files_summary_str=files_summary_str,
+            directory_structure=directory_structure or ""
         )
         
         self.manager.save_and_log_states(prompt, "assembler_prompt.txt")

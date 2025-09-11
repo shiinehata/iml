@@ -6,6 +6,7 @@ from typing import Dict, Any
 from .base_agent import BaseAgent
 from ..prompts import AssemblerPrompt
 from .utils import init_llm
+from ..utils.file_io import get_directory_structure
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +58,9 @@ class AssemblerAgent(BaseAgent):
                 original_code=combined_code,
                 output_path=submission_path,
                 description=description,
-                error_message=error_message
+                error_message=error_message,
+                profiling_result=getattr(self.manager, "profiling_summary", None) or getattr(self.manager, "profiling_result", None),
+                directory_structure=get_directory_structure(self.manager.input_data_folder),
             )
 
             response = self.llm.assistant_chat(prompt)

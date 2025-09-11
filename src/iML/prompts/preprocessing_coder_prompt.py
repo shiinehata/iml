@@ -24,6 +24,14 @@ IMPORTANT: DO NOT CREATE DUMMY DATA.
 - Data files: {data_file_desc}
 - File paths: {file_paths} (LOAD DATA FROM THESE PATHS)
 
+## Files Detected (from profiling):
+```json
+{files_summary_str}
+```
+
+## Directory Structure (read-only):
+{directory_structure}
+
 ## PREPROCESSING GUIDELINES:
 {preprocessing_guideline}
 
@@ -87,11 +95,13 @@ if __name__ == "__main__":
 ````
 """
 
-    def build(self, guideline: Dict, description: Dict, previous_code: str = None, error_message: str = None) -> str:
+    def build(self, guideline: Dict, description: Dict, previous_code: str = None, error_message: str = None, profiling_result: Dict[str, Any] | None = None, directory_structure: str | None = None) -> str:
         """Build prompt to generate preprocessing code."""
         
         preprocessing_guideline = guideline.get('preprocessing', {})
         target_info = guideline.get("target_identification", {})
+        files_summary_list = (profiling_result or {}).get('files', []) if profiling_result else []
+        files_summary_str = json.dumps(files_summary_list, indent=2, ensure_ascii=False)
 
         prompt = self.template.format(
             dataset_name=description.get('name', 'N/A'),
@@ -102,7 +112,9 @@ if __name__ == "__main__":
             file_paths=description.get('link to the dataset', []),
             file_paths_main=description.get('link to the dataset', []),
             preprocessing_guideline=json.dumps(preprocessing_guideline, indent=2),
-            target_info=json.dumps(target_info, indent=2)
+            target_info=json.dumps(target_info, indent=2),
+            files_summary_str=files_summary_str,
+            directory_structure=directory_structure or ""
         )
 
         if previous_code and error_message:

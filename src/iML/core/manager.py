@@ -1,4 +1,5 @@
 import logging
+import json
 import os
 import uuid
 import subprocess
@@ -9,7 +10,6 @@ from ..agents import (
     DescriptionAnalyzerAgent,
     ProfilingAgent,
     ProfilingSummarizerAgent,
-    ModelRetrieverAgent,
     GuidelineAgent,
     PreprocessingCoderAgent,
     ModelingCoderAgent,
@@ -64,10 +64,7 @@ class Manager:
             manager=self,
             llm_config=self.config.profiling_summarizer,
         )
-        self.model_retriever_agent = ModelRetrieverAgent(
-            config=config,
-            manager=self,
-        )
+    # Removed ModelRetrieverAgent; SOTA search provides candidates
         self.guideline_agent = GuidelineAgent(
             config=config,
             manager=self,
@@ -133,9 +130,108 @@ class Manager:
             return
         self.profiling_summary = profiling_summary
 
-        # 3b: Retrieve pretrained model/embedding suggestions
-        model_suggestions = self.model_retriever_agent()
-        self.model_suggestions = model_suggestions
+        # 3b: Retrieve model candidates via SOTA search (hard requirement) and log results
+        try:
+            from adk_search_sota import make_search_sota_root_agent
+            from google.adk.runners import InMemoryRunner
+            from google.genai import types as gen_types
+            import asyncio, uuid
+
+            # Build concise task summary
+            desc = self.description_analysis or {}
+            prof = self.profiling_summary or {}
+            task_summary = (
+                f"Dataset: {desc.get('name','')}\n"
+                f"Task: {desc.get('task','')} ({desc.get('task_type','')})\n"
+                f"Files: " + ", ".join([f.get('name','') for f in (prof.get('files') or [])][:5])
+            )
+
+            root_agent = make_search_sota_root_agent(task_summary=task_summary, k=1, guideline=None)
+            runner = InMemoryRunner(agent=root_agent, app_name="sota-search")
+
+            user_id = "manager"
+            session_id = f"sota-{uuid.uuid4().hex[:8]}"
+            user_msg = gen_types.Content(role="user", parts=[gen_types.Part(text="run")])
+
+            async def _run_once():
+                # 1) Tạo session
+                await runner.session_service.create_session(
+                    app_name="sota-search",
+                    user_id=user_id,
+                    session_id=session_id,
+                )
+                # 2) Chạy agent với session_id bắt buộc
+                items_json = None
+                import re as _re
+                def _strip_fences_txt(s: str) -> str:
+                    s = _re.sub(r"```+\w*\n", "", s)
+                    s = _re.sub(r"```+", "", s)
+                    return s
+                async for event in runner.run_async(
+                    session_id=session_id,
+                    user_id=user_id,
+                    new_message=user_msg
+                ):
+                    if event.content and event.content.parts:
+                        for part in event.content.parts:
+                            if getattr(part, "text", None):
+                                txt = part.text
+                                t2 = _strip_fences_txt(txt)
+                                # Accept only array-like JSON outputs; ignore intermediate chatter
+                                st = t2.lstrip()
+                                looks_like_array = st.startswith("[") and ("model_name" in t2 or "example_code" in t2)
+                                if looks_like_array:
+                                    items_json = t2
+                return items_json
+
+            # 3) Gọi coroutine – nếu đã ở trong event loop, hãy await; còn không thì asyncio.run
+            try:
+                loop = asyncio.get_running_loop()
+            except RuntimeError:
+                items_json = asyncio.run(_run_once())
+            else:
+                items_json = loop.run_until_complete(_run_once())
+
+            # Lưu và parse
+            if items_json is not None:
+                try:
+                    self.save_and_log_states(items_json, "sota_search_raw.json", add_uuid=False)
+                except Exception:
+                    pass
+
+            parsed = []
+            if items_json:
+                try:
+                    parsed = json.loads(items_json)
+                except Exception:
+                    # Try stripping code fences once more and parse again
+                    try:
+                        import re as _re2
+                        cleaned = _re2.sub(r"```+\w*\n", "", items_json)
+                        cleaned = _re2.sub(r"```+", "", cleaned)
+                        parsed = json.loads(cleaned)
+                    except Exception:
+                        parsed = []
+
+            if not items_json:
+                logger.error("SOTA search failed: no output produced.")
+                return
+            if not parsed:
+                logger.error("SOTA search failed: could not parse any valid model candidates.")
+                return
+
+            try:
+                preview = parsed[0].get("model_name", "") if isinstance(parsed, list) and parsed else ""
+                logger.info(f"SOTA search returned {len(parsed)} candidates. First candidate: {preview}")
+                self.save_and_log_states(json.dumps(parsed, ensure_ascii=False, indent=2), "sota_search_parsed.json", add_uuid=False)
+            except Exception:
+                logger.info(f"SOTA search returned {len(parsed)} candidates.")
+
+            self.model_suggestions = {"sota_models": parsed, "source": "sota-search"}
+
+        except Exception as e:
+            logger.error(f"SOTA search failed and is required to proceed: {e}")
+            return
 
         # 3c: Run guideline agent with summarized profiling + model suggestions
         guideline = self.guideline_agent()
